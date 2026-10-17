@@ -2,6 +2,26 @@
 
 Una aventura 2D para navegador basada en la historieta de la carpeta [`historieta/`](historieta/). Vicente, Fabrizio y Luca exploran viñetas, combinan once poderes y rescatan a Vicente de su propio apocalipsis. Incluye seis pantallas principales, una viñeta secreta y la historieta original para leer dentro del juego.
 
+## Jugar
+
+**[Entrar en El apocalipsis Vicente](https://juanwinograd.github.io/Aventura-Papel/)**
+
+El juego está publicado en GitHub Pages. Se juega gratis desde el navegador, sin instalar nada ni crear una cuenta. La primera versión está pensada para **una persona en computadora, con teclado y mouse**.
+
+Elegí «¡Entrar en la historieta!» para empezar o «Continuar mi aventura» para recuperar una partida guardada. Podés activar los efectos de sonido con el botón ♪ y pedir «Una pista» cuando necesites ayuda.
+
+## La aventura
+
+Un meteoro convierte a Vicente en una enorme masa rosa que absorbe todo. Una pequeña esencia suya logra escapar: junto con Fabrizio y Luca deberá recuperar las esencias y salvar el mundo. La historia adapta las ideas de la historieta original para convertirlas en una aventura de exploración y acertijos, con peleas cómicas y una fiesta al final.
+
+| Personaje | Poderes |
+| --- | --- |
+| Vicente | Encerrar enemigos en prismas, convertir objetos y enemigos en regalos transportables y teletransportarse fuera de peligro. |
+| Fabrizio | Crear cubos que reflejan ataques, volverse invisible, lanzar picos y armar una fiesta subterránea. |
+| Luca | Invocar rayos eléctricos, crear tormentas, proteger con un campo de fuerza y hacerse chiquito para entrar en pasadizos. |
+
+Podés cambiar entre los tres durante la aventura. Los poderes se recargan solos; al perder volvés al punto de control, conservando los acertijos resueltos. Y si explorás con atención, quizás encuentres una viñeta que no estaba…
+
 ## Jugar en desarrollo
 
 Requiere Node.js 20 o posterior.
@@ -39,9 +59,23 @@ npm ci --cache /workspace/.cache/npm --ignore-scripts --no-audit --no-fund
 
 Los poderes apuntan en la última dirección de movimiento. Hay que mirar al objetivo y estar a su alcance. Las máquinas cercanas tienen prioridad para el rayo eléctrico. La tecla E muestra una acción contextual: al llevar un regalo, lo coloca si hay un mecanismo cerca y lo abre en los demás lugares. El tamaño pequeño y el campo de fuerza se cancelan pulsando su tecla otra vez. En el conducto no se puede crecer ni cambiar de personaje hasta salir.
 
-«Una pista» ofrece ayuda específica para cada viñeta. «Ver viñetas» permite regresar a las pantallas desbloqueadas y buscar marcas pendientes. Tres marcas, encontradas en las viñetas 2, 3 y 4, abren el dibujo del cuartel y el nivel secreto. No hace falta encontrar el secreto para terminar la historia.
+«Una pista» ofrece ayuda específica para cada viñeta. «Ver viñetas» permite regresar a las pantallas desbloqueadas y buscar marcas pendientes. Explorá los márgenes para descubrir el nivel secreto; no hace falta encontrarlo para terminar la historia.
 
 El progreso se guarda localmente en el navegador, al resolver acertijos o encontrar marcas. «Continuar mi aventura» restaura el último punto de control. Recargar no conserva objetos en tránsito ni efectos temporales: los objetos de acertijos pendientes vuelven a su sitio. Borrar los datos del navegador elimina el guardado. Si el navegador bloquea el almacenamiento, se informa en pantalla y se puede seguir jugando en esa pestaña. Nueva aventura pide confirmación antes de reemplazar el progreso.
+
+Las partidas no se sincronizan entre computadoras o navegadores. El juego publicado y la edición HTML descargable también pueden tener guardados separados.
+
+## Publicación en GitHub Pages
+
+El sitio sirve los archivos estáticos de la raíz del repositorio. Para configurar la publicación en GitHub:
+
+1. Abrir **Settings → Pages**.
+2. En **Build and deployment**, elegir **Deploy from a branch**.
+3. Seleccionar la rama **main**, carpeta **/ (root)**, y guardar.
+
+Para publicar una actualización, validar los cambios e incorporarlos a `main`. GitHub Pages vuelve a desplegar el sitio automáticamente; se puede consultar el resultado en **Actions** o **Settings → Pages**. No hace falta ejecutar `npm run build` para esta modalidad: `index.html` carga directamente los módulos, estilos y recursos del repositorio. Ese comando genera la edición descargable, que está ignorada por Git.
+
+La dirección pública es **https://juanwinograd.github.io/Aventura-Papel/**. Si se usa un fork o se cambia el nombre del repositorio, hay que actualizar este enlace. Los recursos del juego usan rutas relativas para funcionar bajo la carpeta del proyecto.
 
 ## Validación
 
@@ -72,4 +106,4 @@ Las pruebas del navegador usan `/usr/bin/chromium` si existe, o el navegador ins
 
 Vicente y Luca flotan sin piernas. Luca tiene un solo pelo doblado. Fabrizio tiene un resorte de pelo, uno de pierna y dos de brazos. Los dibujos originales no se modifican. La tipografía Patrick Hand está incluida bajo su licencia OFL en `assets/FONT-LICENSE.txt`.
 
-Primera versión para una persona en computadora con teclado y mouse. La interfaz se adapta a pantallas angostas, pero no incluye controles táctiles completos ni multijugador. La duración de 10–15 minutos es un objetivo de diseño que debe ajustarse con una partida de la familia; las pruebas automáticas no miden esa experiencia. No se ha publicado un sitio público.
+Primera versión para una persona en computadora con teclado y mouse. La interfaz se adapta a pantallas angostas, pero no incluye controles táctiles completos ni multijugador. La duración de 10–15 minutos es un objetivo de diseño que debe ajustarse con una partida de la familia; las pruebas automáticas no miden esa experiencia.
