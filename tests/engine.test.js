@@ -11,7 +11,7 @@ function useOn(g,hero,power,id,dx=-75){const o=g.objects.find(o=>o.id===id);asse
 function giftTo(g,id,destination){assert.equal(useOn(g,0,1,id),true);const o=g.objects.find(o=>o.id===id);at(g,o.x,o.y);g.interact();assert.equal(g.gift.carried,true);const slot=g.objects.find(o=>o.id===destination);at(g,slot.x-40,slot.y);g.interact();}
 function reflect(g,id){assert.equal(useOn(g,1,0,id),true);const enemy=g.objects.find(o=>o.id===id);enemy.shot=0;tick(g,.8);assert.equal(g.flags[enemy.flag],true);}
 
-test('las dieciocho habilidades existen y cada héroe tiene sus recargas',()=>{const g=ready();assert.equal(HEROES.reduce((s,h)=>s+h.powers.length,0),18);assert.deepEqual(g.cooldowns.map(a=>a.length),[3,4,4,4,3]);});
+test('las diecinueve habilidades existen y cada héroe tiene sus recargas',()=>{const g=ready();assert.equal(HEROES.reduce((s,h)=>s+h.powers.length,0),19);assert.deepEqual(g.cooldowns.map(a=>a.length),[3,4,4,4,3,1]);});
 test('el prisma contiene un enemigo, se agota y no se aplica a NPC',()=>{const g=ready(1);useOn(g,0,0,'guard');assert.equal(g.flags.street_prism,true);assert.equal(g.objects.find(o=>o.id==='guard').prism,6);tick(g,6.1);assert.equal(g.objects.find(o=>o.id==='guard').prism,0);const base=ready();at(base,120,355,0);assert.equal(base.use(0),false);assert.equal(base.cooldowns[0][0],0);});
 test('el regalo conserva la pieza, viaja entre personajes y completa un mecanismo',()=>{const g=ready(1);assert.equal(useOn(g,0,1,'piece'),true);const id=g.gift.content;assert.equal(g.use(1),false);at(g,210,435);g.interact();g.select(1);assert.equal(g.gift.content,id);assert.equal(g.gift.carried,true);at(g,770,415);g.interact();assert.equal(g.flags.street_piece,true);assert.equal(g.gift,null);});
 test('abrir un regalo fuera de su destino devuelve el objeto sin perderlo',()=>{const g=ready(1);useOn(g,0,1,'piece');at(g,210,435);g.interact();at(g,100,455);g.interact();assert.equal(g.gift,null);const piece=g.objects.find(o=>o.id==='piece');assert.equal(piece.inGift,false);assert.equal(piece.x,155);tick(g,4.1);assert.equal(useOn(g,0,1,'piece'),true);});
@@ -38,6 +38,35 @@ function finishStory(g){
 }
 function secret(){const g=ready();g.marks=[1,2,3];g.flags.secret_open=true;g.enter(6,false);return g;}
 function amaral(){const g=secret();g.enter(0,false);at(g,300,272,3);assert.equal(g.use(0),true);g.dialog=[];g.select(4);return g;}
+function garden(){const g=amaral();g.enter(7,false);tick(g,3.1);return g;}
+function unlockAaron(g){g.select(4);g.use(1);at(g,400,265,3);assert.equal(g.use(0),true);g.select(4);g.use(2);at(g,805,365);g.interact();while(g.dialog.length)g.interact();assert.equal(g.flags.aaron_unlocked,true);g.select(5);}
+
+test('el jardín solo se abre después de liberar a Amaral, sin saltar la historia principal',()=>{
+  const locked=ready();assert.equal(locked.canEnter(7),false);assert.equal(locked.enter(7),false);assert.equal(locked.select(5),false);
+  const g=amaral();assert.equal(g.canEnter(7),true);at(g,790,250);g.interact();assert.equal(g.scene,7);assert.equal(g.flags.victory,undefined);const max=new Adventure(g.serialize()).maxScene;assert.equal(max,0,'un nivel opcional no abre las viñetas principales');
+});
+test('el reloj necesita sol de Amaral, el brazo de Gaspar y viento en ese orden',()=>{
+  const g=garden();at(g,400,265,3);assert.equal(g.use(0),false,'el engranaje está oculto');assert.equal(g.select(5),false);g.select(4);g.use(2);assert.equal(g.flags.time_wind,undefined);g.cooldowns[4][2]=0;
+  g.use(1);assert.equal(g.flags.time_sun,true);assert.equal(g.flags.time_gear,undefined);assert.equal(g.flags.aaron_unlocked,undefined);
+  at(g,400,265,3);g.use(0);assert.equal(g.flags.time_gear,true);g.select(4);g.use(2);assert.equal(g.flags.time_wind,true);assert.equal(g.flags.aaron_unlocked,undefined,'hay que hablar con Aarón');
+  at(g,805,365);g.interact();g.dialog=[];assert.equal(g.flags.aaron_unlocked,true);assert.equal(g.select(5),true);assert.equal(g.complete,false);
+});
+test('la burbuja temporal deja caminar al asistente al cuarto de velocidad y retrasa su disparo',()=>{
+  const g=garden();unlockAaron(g);g.invulnerable=100;const target=g.objects.find(o=>o.id==='time-guard1');at(g,target.x-75,target.y,5);target.shot=2;const x=target.x,shot=target.shot;assert.equal(g.use(0),true);tick(g,1);
+  assert.ok(Math.abs(target.x-x-7)<.4);assert.ok(Math.abs(shot-target.shot-.25)<.02);assert.equal(g.flags.time_bubble,true);assert.equal(g.complete,true);assert.ok(target.bubble>5.9);
+  const before=target.x;tick(g,6.2);assert.equal(target.bubble,0);const normal=target.x;tick(g,1);assert.ok(Math.abs(Math.abs(target.x-normal)-28)<1);assert.notEqual(before,target.x);
+});
+test('las burbujas sirven con NPC, respetan alcance y orientación, y no encierran máquinas',()=>{
+  const g=garden();unlockAaron(g);g.enter(0,false);at(g,100,355,5,{x:-1,y:0});assert.equal(g.use(0),false);assert.equal(g.cooldowns[5][0],0);
+  g.player.face={x:1,y:0};assert.equal(g.use(0),true);assert.ok(g.objects.find(o=>o.id==='anciano').bubble>0);g.cooldowns[5][0]=0;g.objects=g.objects.filter(o=>o.type==='turret');at(g,610,325,5);assert.equal(g.use(0),false,'el lanzador no es una persona');
+});
+test('Aarón conserva su desbloqueo global y el jardín se reconstruye tras perder o continuar',()=>{
+  const g=garden();unlockAaron(g);g.used.push('5-0');const saved=g.serialize();assert.equal(saved.scene,7);const restored=new Adventure(saved);assert.equal(restored.scene,7);assert.equal(restored.player.hero,5);assert.equal(restored.flags.aaron_unlocked,true);assert.equal(restored.objects.some(o=>o.bubble>0),false);restored.enter(0,false);assert.equal(restored.player.hero,5);assert.equal(restored.select(3),true);assert.equal(restored.select(5),true);
+  g.invulnerable=0;g.hurt();g.invulnerable=0;g.hurt();g.invulnerable=0;g.hurt();assert.equal(g.scene,7);assert.equal(g.flags.time_wind,true);assert.equal(g.flags.aaron_unlocked,true);assert.equal(g.player.health,3);
+});
+test('un guardado de versión 3 con Amaral puede descubrir el nivel nuevo sin perder progreso',()=>{
+  const g=amaral(),saved=g.serialize();saved.version=3;const restored=new Adventure(saved);assert.equal(restored.flags.amaral_unlocked,true);assert.equal(restored.canEnter(7),true);assert.equal(restored.select(5),false);assert.equal(restored.flags.aaron_unlocked,undefined);
+});
 
 test('el láser bloquea movimiento y teletransporte; solo Fabrizio invisible cruza con el regalo',()=>{
   const g=ready(1);at(g,515,350,2);g.shield=5;assert.equal(g.safe(530,350),false);g.move(1,0,.05);assert.ok(g.player.x<522);

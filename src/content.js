@@ -4,6 +4,7 @@ export const HEROES = [
   { id:'luca', name:'Luca', color:'#20b5d5', dark:'#08788f', trait:'Pequeño, pero con mucha energía', powers:[['Rayo eléctrico','Dale energía a las máquinas o aturdí enemigos.',2,'ϟ'],['Tormenta','Cambiá el escenario con una tormenta.',10,'☂'],['Campo de fuerza','Protegé a todos los que estén cerca. Te quedás quieto.',11,'◎'],['Hacerse chiquito','Entrá en pasadizos. Volvé a pulsar para crecer.',3,'↧']] },
   { id:'gaspar', name:'Gaspar', color:'#08afce', dark:'#08778d', trait:'El hermano que llega más lejos', unlock:'gaspar_unlocked', powers:[['Brazo elástico','Alcanzá objetos que están muy lejos.',3,'↔'],['Superpuño','Un golpe enorme contra los enemigos cercanos.',3,'✊'],['Teletransportarse','Saltá a un lugar seguro al azar.',8,'↝'],['Papapumba','Lanzá una papa explosiva. ¡PUM!',5,'●']] },
   { id:'amaral', name:'Amaral', color:'#ef3b50', dark:'#ac2436', trait:'El clima está de su lado', unlock:'amaral_unlocked', powers:[['Neblina','Ocultá al equipo de los enemigos durante seis segundos.',10,'≋'],['Soleado','Despejá la neblina e iluminá toda la viñeta.',8,'☀'],['Viento','Desviá los disparos enemigos con ráfagas de viento.',9,'↠']] },
+  { id:'aaron', name:'Aarón Mamani', color:'#13ad9d', dark:'#08786e', trait:'Tiene todo el tiempo del mundo', unlock:'aaron_unlocked', powers:[['Burbuja temporal','Encerrá a una persona en una burbuja: se mueve y actúa más lento.',5,'◴']] },
 ];
 
 const headquartersGuests=[
@@ -14,6 +15,7 @@ const headquartersGuests=[
   {id:'seshia',type:'npc',name:'Seshia',character:'seshia',x:855,y:395,dialog:[['Seshia','Amaral está en el cofre. Seguro que con ayuda puede salir.']]},
 ];
 const chest={id:'chest',type:'chest',name:'Cofre de Amaral',x:615,y:272,flag:'amaral_unlocked'};
+const timeDoor={id:'time-door',type:'time-door',name:'Un dibujo de reloj',x:790,y:250,hiddenUntil:'amaral_unlocked'};
 
 export const SCENES = [
   { title:'El cuartel', subtitle:'e.c.u.c.p.a.e.a.p.s.a', caption:'Toda gran aventura empieza con una noticia muy rara.', theme:'base', requires:['base_power','base_reflect'], objective:'Repará la consola y probá la defensa del cuartel.', hint:'Acercá a Luca a la consola y usá Z. Después, llevá a Fabrizio frente al lanzador y usá Z para devolver un disparo con su cubo.', intro:[['Reportero','¡Última noticia! Una masa rosa está absorbiendo el mundo. Se llama… ¡Vicente!'],['Vicente','¡Ese es mi cuerpo! Yo soy una pequeña esencia que logró salir. ¿Me ayudan a volver?'],['Ancianito','Las esencias están en su corazón. Primero arreglemos el cuartel. Cambien de personaje con 1, 2 y 3.']], objects:[
@@ -22,7 +24,7 @@ export const SCENES = [
     {id:'launcher',type:'turret',name:'Lanzador de práctica',x:680,y:325,flag:'base_reflect',practice:true},
     {id:'reportero',type:'npc',name:'Reportero',x:835,y:280,character:'reportero',dialog:[['Reportero','¡El equipo sale al rescate! Mis cálculos indican que la aventura tendrá al menos una fiesta.']]},
     {id:'secret-door',type:'secret-door',name:'Un dibujo sospechoso',x:450,y:250},
-    chest,...headquartersGuests,
+    chest,timeDoor,...headquartersGuests,
   ] },
   { title:'La calle doblada', subtitle:'No todo lo que brilla es un regalo. A veces, sí.', caption:'Mientras tanto, en una calle que alguien dobló por la mitad…', theme:'street', requires:['street_prism','street_sneak','street_target','street_piece'], objective:'Conseguí la pieza y abrí el paso sin despertar a todo el barrio.', hint:'Vicente puede encerrar al guardia con Z. Primero envolvé la pieza con X de Vicente y recogela con E. Fabrizio puede llevar el regalo: usá X para cruzar el láser invisible, entregalo con E en el mecanismo y alcanzá el blanco con C.', mark:{x:865,y:245}, objects:[
     {id:'piece',type:'piece',name:'Pieza del mecanismo',x:210,y:435},
@@ -54,12 +56,22 @@ export const SCENES = [
     {id:'reportero',type:'npc',name:'Reportero',x:245,y:355,character:'reportero',dialog:[['Reportero','¡El apocalipsis fue cancelado! Gracias a este equipo y sus superpoderes. Ahora sí: ¡hagamos una fiesta!']]},
     {id:'anciano',type:'npc',name:'Ancianito',x:665,y:350,character:'anciano',dialog:[['Ancianito','Algunas historias esconden otra historia en los márgenes. Si encontraste tres marcas, mirá el dibujo del cuartel.']]},
     {id:'secret-door',type:'secret-door',name:'El dibujo del cuartel',x:450,y:260},
-    chest,...headquartersGuests.map(o=>({...o,dialog:o.id==='sofia'?[['Sofía','¡Qué suerte que volvió Vicente! Lástima que no hay luces de fiesta… ¿Fabrizio sabe hacer algo?']]:o.id==='seshia'?[['Seshia','¡Al fin volvió la tranquilidad! Si Amaral sigue en el cofre, podemos volver al cuartel a ayudarla.']]:o.id==='alma-suave'?[['Alma','¡El apocalipsis se terminó! ¿Bailamos?']]:o.dialog})),
+    chest,timeDoor,...headquartersGuests.map(o=>({...o,dialog:o.id==='sofia'?[['Sofía','¡Qué suerte que volvió Vicente! Lástima que no hay luces de fiesta… ¿Fabrizio sabe hacer algo?']]:o.id==='seshia'?[['Seshia','¡Al fin volvió la tranquilidad! Si Amaral sigue en el cofre, podemos volver al cuartel a ayudarla.']]:o.id==='alma-suave'?[['Alma','¡El apocalipsis se terminó! ¿Bailamos?']]:o.dialog})),
   ] },
-  { title:'La viñeta de Gaspar', subtitle:'¡Un nuevo héroe salió del margen!', caption:'Gaspar llegó. ¡Sus brazos no conocen los márgenes!', theme:'secret', requires:['secret_reach','secret_guard1','secret_guard2'], objective:'Usá el brazo elástico para alcanzar la llave y vencé a los asistentes.', hint:'Elegí a Gaspar con 4. Desde el lado izquierdo, mirá la llave lejana y usá Z: el brazo elástico la trae y abre el puente. Con X, el superpuño alcanza enemigos cercanos. Con V, Papapumba lanza una papa que explota a distancia. C te lleva fuera de peligro.', objects:[
+  { title:'La viñeta de Gaspar', unlock:'secret_open', subtitle:'¡Un nuevo héroe salió del margen!', caption:'Gaspar llegó. ¡Sus brazos no conocen los márgenes!', theme:'secret', requires:['secret_reach','secret_guard1','secret_guard2'], objective:'Usá el brazo elástico para alcanzar la llave y vencé a los asistentes.', hint:'Elegí a Gaspar con 4. Desde el lado izquierdo, mirá la llave lejana y usá Z: el brazo elástico la trae y abre el puente. Con X, el superpuño alcanza enemigos cercanos. Con V, Papapumba lanza una papa que explota a distancia. C te lleva fuera de peligro.', objects:[
     {id:'key',type:'distant',name:'Llave del puente',x:800,y:265,flag:'secret_reach'},
     {id:'guard1',type:'enemy',name:'Asistente del puente',x:695,y:350,defeatable:true,flag:'secret_guard1'},
     {id:'guard2',type:'enemy',name:'Asistente de las papas',x:865,y:435,defeatable:true,flag:'secret_guard2'},
+  ] },
+  { title:'El jardín de las horas perdidas', unlock:'amaral_unlocked', subtitle:'Un minuto puede esconder una aventura.', caption:'En este jardín, alguien se olvidó de darle cuerda al tiempo.', theme:'garden', requires:['time_sun','time_gear','time_wind','aaron_unlocked','time_bubble'], objective:'Combiná el clima de Amaral y el brazo de Gaspar para abrir el reloj.', hint:'Amaral usa X para despejar la neblina y encender el panel solar. Desde el jardín, Gaspar mira el engranaje alto y lo alcanza con Z. Después, C de Amaral mueve el molino. Hablá con Aarón junto al reloj abierto para liberarlo. Elegilo con 6 y usá Z mirando a un asistente que camina para probar su burbuja temporal. La neblina de Amaral puede ocultarte si los asistentes molestan.', intro:[['Ancianito','Aarón Mamani quedó dentro del reloj del jardín. ¡Y los asistentes de Fusi se llevaron su engranaje hasta ahí arriba!'],['Amaral','Yo puedo despejar el cielo y darle viento al molino. Gaspar, ¡necesitamos tu brazo!']], objects:[
+    {id:'guide',type:'npc',name:'Ancianito',character:'anciano',x:175,y:300,dialog:[['Ancianito','Primero hace falta sol de Amaral. Así veremos el engranaje que Gaspar puede alcanzar. Después, el viento pondrá a girar el molino.'],['Ancianito','Cuando el reloj se abra, hablá con Aarón. Su burbuja no deja quietos a los asistentes: ¡les da muchísima fiaca!']]},
+    {id:'solar',type:'solar',name:'Panel del reloj',x:340,y:305,flag:'time_sun'},
+    {id:'time-gear',type:'distant',name:'Engranaje lejano',x:690,y:245,flag:'time_gear',hiddenUntil:'time_sun'},
+    {id:'mill',type:'windmill',name:'Molino del reloj',x:600,y:315,flag:'time_wind'},
+    {id:'clock',type:'clock',name:'Reloj detenido',x:805,y:365,flag:'time_wind'},
+    {id:'aaron',type:'npc',name:'Aarón Mamani',character:'aaron',x:805,y:365,hiddenUntil:'time_wind',hiddenAfter:'aaron_unlocked'},
+    {id:'time-guard1',type:'enemy',name:'Asistente apurado',x:470,y:420,patrol:{from:430,to:650,speed:28}},
+    {id:'time-guard2',type:'enemy',name:'Asistente sin reloj',x:795,y:445,patrol:{from:735,to:860,speed:24}},
   ] },
 ];
 export const FLAG_NAMES = [...new Set([...SCENES.flatMap(s=>s.requires), 'victory','secret_open','gaspar_unlocked','amaral_unlocked'])];
@@ -73,6 +85,7 @@ export const MASS_AREAS={
 };
 export const STREET_LASER={x:530,halfWidth:9,top:235,bottom:477};
 export const WEATHER_DURATIONS={fog:6,sun:6,wind:5};
+export const TEMPORAL_BUBBLE={duration:7,rate:.25,reach:250};
 export const COMIC_PAGES=[
   {file:'00_Tapa.jpg',label:'Tapa'},
   ...Array.from({length:12},(_,i)=>({file:`${String(i+1).padStart(2,'0')}_Pagina.jpg`,label:`Página ${i+1}`})),

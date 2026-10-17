@@ -8,7 +8,7 @@ Lámina conceptual: [propuesta-visual.png](propuesta-visual.png). Incluye nuevas
 
 Aventura 2D para navegador, de un jugador, pensada para los 9 años. Se avanza entre pantallas que funcionan como viñetas de historieta. Exploración y acertijos tienen prioridad sobre peleas y conversaciones. Duración objetivo: 10–15 minutos para el recorrido principal; el secreto agrega tiempo opcional.
 
-Se puede cambiar entre Vicente, Fabrizio y Luca durante la aventura. Todos sus poderes estarán disponibles y tendrán una oportunidad de uso. Gaspar se desbloquea al reunir las tres estrellas y entrar al nivel secreto; queda disponible para toda la aventura, también al recargar. Gaspar también puede volver a la viñeta 1 y abrir el cofre con Z para liberar a Amaral, que se suma con tres climas y queda disponible con 5. Los demás personajes son NPC. Las peleas son cómicas y perder devuelve al último punto de control.
+Se puede cambiar entre Vicente, Fabrizio y Luca durante la aventura. Todos sus poderes estarán disponibles y tendrán una oportunidad de uso. Gaspar se desbloquea al reunir las tres estrellas y entrar al nivel secreto; queda disponible para toda la aventura, también al recargar. Gaspar también puede volver a la viñeta 1 y abrir el cofre con Z para liberar a Amaral, que se suma con tres climas y queda disponible con 5. Al liberar a Amaral se abre el jardín de las horas perdidas, donde Amaral y Gaspar descubren a Aarón Mamani. Se suma con 6 y un poder temporal. Los demás personajes son NPC. Las peleas son cómicas y perder devuelve al último punto de control.
 
 ## Fuentes y adaptación narrativa
 
@@ -28,6 +28,7 @@ Fusi es la villana del glosario. En esta versión intenta aprovechar el caos con
 - Gaspar: cara celeste redonda sonriente y extremidades radiales, conservando el dibujo de `historieta/Gaspar.jpg`. Tiene brazo elástico, superpuño, teletransporte y Papapumba.
 - Amaral: figura roja con una lanza en la mano, como el dibujo adjunto por la familia. Controla neblina, sol y viento.
 - Alma (cara flotante suave), Alma (violeta), Seshia, Sofía y Cata: aparecen en las viñetas 1 y 6, con las siluetas y colores del dibujo adjunto. Las dos Almas conservan el mismo nombre. La primera es solo una cara flotante de color muy suave, con ojos, sonrisa y mechones laterales. Cata no tiene piernas y flota. El rombo celeste de la referencia no se usa por ahora.
+- Aarón Mamani: cabeza circular verde rellena, pequeño pelo oscuro y cuerpo de palitos sin piernas, como en la página 11. Flota y crea burbujas temporales.
 - Ancianito: pequeña barba clara y bastón negro curvo sostenido con la mano, como en la página 12. Da pistas y separa la fusión en el cierre.
 - Reportero: presenta los acontecimientos con noticias breves y cómicas.
 - Sebástian: ayuda en la resolución final.
@@ -55,6 +56,18 @@ Distribución orientativa: 2 minutos en el cuartel, 2 en la calle, 3 en el labor
 Nombre: **La viñeta de Gaspar**. Buscar tres marcas dibujadas en los márgenes de las pantallas 2, 3 y 4; la interfaz indica cuántas se encontraron sin revelar todas las ubicaciones. Se pueden conseguir sin acciones irreversibles. Al volver al cuartel, las tres marcas abren una viñeta escondida detrás de un dibujo.
 
 Entrar desbloquea a Gaspar de forma permanente. Antes de cruzar el margen debe alcanzar una llave distante con su brazo elástico (Z), que abre un puente. Dos asistentes pueden vencerse con superpuño (X) o Papapumba (V). El teletransporte (C) solo alcanza lugares accesibles y seguros: no evita el puente cerrado. Los asistentes salen volando con efectos cómicos. Los enemigos de acertijos anteriores solo quedan aturdidos para que puedan seguir usándose como regalos. No bloquea el final principal. Una vez descubierta, queda accesible desde la selección de viñetas. Se podrá volver a las pantallas previas para completar la búsqueda.
+
+## Segundo nivel secreto: El jardín de las horas perdidas
+
+Disponible después de liberar a Amaral, tanto mediante un dibujo de reloj junto a la ventana del cuartel (viñetas 1 y 6) como en «Ver viñetas». No exige rehacer una partida anterior ni abre por adelantado las pantallas de la historia principal.
+
+1. El jardín empieza con neblina. El sol de Amaral despeja el lugar, activa el panel y revela un engranaje detrás de una cerca.
+2. Gaspar debe alcanzarlo con el brazo elástico. El engranaje queda instalado en el molino; no puede perderse al reiniciar.
+3. El viento de Amaral hace funcionar el molino y abre el reloj. Usarlo antes del engranaje no completa ese paso. Su neblina puede ocultar al equipo de los asistentes.
+4. Hay que hablar con Aarón junto al reloj para liberarlo. Queda disponible en todas las viñetas y en el guardado.
+5. Aarón prueba Z sobre un asistente que patrulla. El asistente sigue caminando dentro de su burbuja, al 25 % de velocidad; el intervalo entre disparos y su animación también se ralentizan. Así se completa el nivel.
+
+La burbuja dura 7 s y se recarga en 5 s. Puede afectar enemigos, NPC y acompañantes, manteniendo sus interacciones; no se aplica a máquinas. No elimina ni paraliza personajes. La pausa detiene su duración. Las recargas, diálogos y el movimiento del jugador siguen sus reglas normales. Al reiniciar o continuar se conservan las soluciones y el desbloqueo de Aarón, pero las burbujas transitorias se limpian.
 
 ## Reglas compartidas
 
@@ -86,6 +99,7 @@ Las duraciones y recargas siguientes son propuestas de equilibrio; las funciones
 | Gaspar | Superpuño | Golpea enemigos cercanos, hasta 135 unidades. | 3 s |
 | Gaspar | Teletransportarse | Traslado aleatorio seguro dentro del área accesible. | 8 s |
 | Gaspar | Papapumba | Papa explosiva que vuela durante 0,8 s y afecta enemigos cercanos a su explosión. | 5 s |
+| Aarón Mamani | Burbuja temporal | Encierra a una persona durante 7 s. Movimiento, animación y acciones al 25 % de velocidad; alcance 250 unidades, mirando al objetivo. | 5 s |
 | Amaral | Neblina | Oculta al equipo: los enemigos dejan de disparar durante 6 s. No desactiva el láser ni vuelve inofensiva la masa. | 10 s |
 | Amaral | Soleado | Reemplaza la neblina e ilumina toda la viñeta durante 6 s. | 8 s |
 | Amaral | Viento | Desvía los proyectiles enemigos durante 5 s. No afecta disparos reflejados. | 9 s |
@@ -101,8 +115,8 @@ Enemigos dentro de regalos quedan inmovilizados hasta abrirlos; un prisma es una
 Primera versión para navegador de computadora, con teclado; no se promete soporte táctil ni multijugador en este alcance.
 
 - Flechas o WASD: desplazarse en dos direcciones dentro de la viñeta, sin saltos de plataformas.
-- 1, 2, 3: seleccionar Vicente, Fabrizio o Luca; 4 selecciona a Gaspar y 5 a Amaral después de desbloquearlos. También se puede pulsar su retrato.
-- Z, X, C, V: usar los poderes del personaje seleccionado, en el orden de la tabla. Botones visibles y pulsables como alternativa. Vicente y Amaral no usan V.
+- 1, 2, 3: seleccionar Vicente, Fabrizio o Luca; 4 selecciona a Gaspar y 5 a Amaral y 6 a Aarón Mamani después de desbloquearlos. También se puede pulsar su retrato.
+- Z, X, C, V: usar los poderes del personaje seleccionado, en el orden de la tabla. Botones visibles y pulsables como alternativa. Vicente y Amaral no usan V. Aarón usa Z.
 - E o Espacio: hablar, recoger, dejar y abrir regalos; el texto contextual indica la acción exacta.
 - Los ataques se orientan hacia la última dirección de movimiento; se muestra el objetivo cercano cuando corresponda. Los rayos de máquinas priorizan el mecanismo señalado.
 - Escape: pausa y controles. Botón de sonido y volumen. Sonido solo después de una interacción del usuario para respetar el navegador.
@@ -126,7 +140,7 @@ Antes de producir las animaciones se revisará una lámina conceptual de los pro
 
 1. Se puede completar la aventura de principio a fin en el navegador, sin instalación ni cuenta.
 2. Cambiar entre los tres personajes es necesario y comprensible; ningún acertijo queda bloqueado por el personaje elegido.
-3. Los 18 poderes se pueden usar al desbloquear a Gaspar y Amaral; cada uno tiene una oportunidad clara de demostración, incluida la fiesta decorativa.
+3. Los 19 poderes se pueden usar al desbloquear a Gaspar, Amaral y Aarón; cada uno tiene una oportunidad clara de demostración, incluida la fiesta decorativa.
 4. El teletransporte siempre lleva a un lugar seguro y no resuelve por azar un acertijo obligatorio.
 5. Los regalos conservan su contenido; abrirlos, moverlos y reiniciar no permite perder piezas esenciales.
 6. El campo de fuerza protege al NPC y la invisibilidad permite atacar sin ser detectado durante su duración.
@@ -144,6 +158,7 @@ Antes de producir las animaciones se revisará una lámina conceptual de los pro
 - Aprobado: lámina corregida de poses y cuartel, incluido el pelo doblado de Luca.
 - Incorporadas las mejoras pedidas: viñetas 4 y 5 ilustradas, masa letal por contacto y sin reloj, fusión de Sebástian seguida de la separación del Ancianito, fiesta completa con baile, Gaspar permanente y nuevo secreto, estrellas visibles y lector con tapa e imágenes nuevas.
 - Incorporadas las siguientes mejoras: chicas del cuartel y cofre de Amaral, láser físico que exige invisibilidad, blanco y antena resaltados, estrellas sin recuadros, pedido de ayuda posterior a la tormenta, salto obligatorio de Vicente, nombre Sebástian, Fusi diferenciada, final sin banderines ni masa por la ventana, masa ausente después del rescate, nuevo arte del secreto y tres climas de Amaral.
+- Incorporado el jardín de las horas perdidas: sol de Amaral, engranaje con el brazo de Gaspar, viento para abrir el reloj y rescate de Aarón Mamani. Burbuja temporal con movimiento y acciones más lentos, desbloqueo permanente y compatibilidad con partidas anteriores.
 - Controles y tiempos propuestos: ajustar después de jugar.
 
 Siguiente paso de revisión: jugar la primera versión en familia y ajustar ritmo, pistas, tiempos de recarga y dificultad a partir de esa partida. Los resultados de las pruebas técnicas se informan por separado.

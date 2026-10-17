@@ -1,4 +1,4 @@
-import { HEROES, SCENES, FLAG_NAMES, MASS_AREAS, STREET_LASER, WEATHER_DURATIONS } from './content.js';
+import { HEROES, SCENES, FLAG_NAMES, MASS_AREAS, STREET_LASER, WEATHER_DURATIONS, TEMPORAL_BUBBLE } from './content.js';
 
 export const distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
@@ -13,12 +13,12 @@ export class Adventure {
     this.enter(this.scene??0, false);
   }
   restore(saved) {
-    if(!saved || ![1,2,3].includes(saved.version)) return;
+    if(!saved || ![1,2,3,4].includes(saved.version)) return;
     const ints=(arr,allowed)=>Array.isArray(arr)?[...new Set(arr.filter(n=>Number.isInteger(n)&&allowed.includes(n)))]:[];
     for(const key of FLAG_NAMES) if(saved.flags?.[key]===true) this.flags[key]=true;
     this.marks=ints(saved.marks,[1,2,3]);
-    this.seen=ints(saved.seen,[0,1,2,3,4,5,6]);
-    this.used=Array.isArray(saved.used)?[...new Set(saved.used.filter(p=>typeof p==='string'&&/^[0-4]-[0-3]$/.test(p)&&HEROES[Number(p[0])].powers[Number(p[2])]))]:[];
+    this.seen=ints(saved.seen,SCENES.map((_,i)=>i));
+    this.used=Array.isArray(saved.used)?[...new Set(saved.used.filter(p=>typeof p==='string'&&/^[0-5]-[0-3]$/.test(p)&&HEROES[Number(p[0])].powers[Number(p[2])]))]:[];
     // Existing victories stay victories when the new ending is installed.
     if(saved.version===1&&this.flags.victory){this.flags.heart_fusion=true;this.flags.heart_restored=true;}
     this.maxScene=0;
@@ -28,12 +28,12 @@ export class Adventure {
     if(this.flags.secret_open)this.flags.gaspar_unlocked=true;
     if(this.marks.length!==3)delete this.flags.gaspar_unlocked;
     if(!this.flags.gaspar_unlocked)delete this.flags.amaral_unlocked;
-    this.scene=Number.isInteger(saved.scene)&&saved.scene>=0&&saved.scene<=this.maxScene?saved.scene:0;
-    if(saved.scene===6&&this.flags.secret_open) this.scene=6;
+    if(!['amaral_unlocked','time_sun','time_gear','time_wind'].every(f=>this.flags[f]))delete this.flags.aaron_unlocked;
+    this.scene=this.canEnter(saved.scene)?saved.scene:0;
     this.player.hero=Number.isInteger(saved.hero)?clamp(saved.hero,0,HEROES.length-1):0;
     if(HEROES[this.player.hero].unlock&&!this.flags[HEROES[this.player.hero].unlock])this.player.hero=0;
   }
-  serialize() { return {version:3,scene:this.scene,maxScene:this.maxScene,hero:this.player.hero,flags:{...this.flags},marks:[...this.marks],used:[...this.used],seen:[...this.seen]}; }
+  serialize() { return {version:4,scene:this.scene,maxScene:this.maxScene,hero:this.player.hero,flags:{...this.flags},marks:[...this.marks],used:[...this.used],seen:[...this.seen]}; }
   emit(type,detail) { this.events.push({type,detail}); }
   toast(text) { this.emit('toast',text); }
   flag(key) {
@@ -41,6 +41,7 @@ export class Adventure {
     this.flags[key]=true; this.emit('solved',key); this.emit('save');
   }
   get definition(){return SCENES[this.scene];}
+  canEnter(scene){return Number.isInteger(scene)&&Boolean(SCENES[scene])&&(SCENES[scene].unlock?this.flags[SCENES[scene].unlock]===true:scene<=this.maxScene);}
   get complete(){return this.definition.requires.every(k=>this.flags[k]);}
   start() { this.running=true; this.intro(); }
   intro() {
@@ -53,11 +54,9 @@ export class Adventure {
     }
   }
   enter(scene, intro=true) {
-    if(!Number.isInteger(scene)||!SCENES[scene])return false;
-    if(scene===6&&!this.flags.secret_open)return false;
-    if(scene!==6&&scene>this.maxScene)return false;
+    if(!this.canEnter(scene))return false;
     this.scene=scene;
-    this.objects=this.definition.objects.map(o=>({...o,prism:0,stun:0,inGift:false,defeated:false,shot:2.3}));
+    this.objects=this.definition.objects.map(o=>({...o,prism:0,stun:0,bubble:0,animationTime:0,direction:1,inGift:false,defeated:false,shot:2.3}));
     this.player.x=110;this.player.y=420;this.player.health=3;
     this.player.face={x:1,y:0};
     this.gift=null; this.invisible=0; this.shield=0; this.small=false; this.cube=null; this.party=0;this.partyBuried=0;this.storm=0; this.invulnerable=1;
@@ -71,7 +70,7 @@ export class Adventure {
   select(hero) {
     if(!Number.isInteger(hero)||!HEROES[hero]||hero===this.player.hero)return false;
     if(this.cinematic)return false;
-    if(HEROES[hero].unlock&&!this.flags[HEROES[hero].unlock]){this.toast(hero===4?'Amaral está en el cofre del cuartel. Gaspar puede ayudarla.':'Gaspar se esconde en el nivel secreto. Encontrá las tres estrellas.');return false;}
+    if(HEROES[hero].unlock&&!this.flags[HEROES[hero].unlock]){this.toast(hero===5?'Aarón está en el jardín de las horas perdidas. Amaral y Gaspar pueden encontrarlo.':hero===4?'Amaral está en el cofre del cuartel. Gaspar puede ayudarla.':'Gaspar se esconde en el nivel secreto. Encontrá las tres estrellas.');return false;}
     if(this.small&&!this.safe(this.player.x,this.player.y,false)){this.toast('Primero salí del pasadizo con Luca.');return false;}
     this.player.hero=hero;this.small=false;this.shield=0;this.invisible=0;this.partyBuried=0;
     this.emit('select',hero);this.emit('save');return true;
@@ -80,12 +79,13 @@ export class Adventure {
     if(x<62||x>897||y<235||y>477)return false;
     if(this.scene===2&&x>493&&x<548&&!(small&&y>329&&y<369))return false;
     if(this.scene===6&&!this.flags.secret_reach&&x>540)return false;
+    if(this.scene===7&&x>650&&x<730&&y<285)return false;
     if(this.scene===1&&this.invisible<=0&&Math.abs(x-STREET_LASER.x)<STREET_LASER.halfWidth)return false;
     return true;
   }
   get mass(){return this.flags.victory||this.scene===4&&this.flags.heart_fusion?null:MASS_AREAS[this.scene]||null;}
   massContact(x,y){const m=this.mass;return Boolean(m&&[m,...m.lobes||[]].some(a=>((x-a.x)/(a.rx+10))**2+((y-35-a.y)/(a.ry+15))**2<1));}
-  get concealed(){return this.invisible>0||this.weather?.kind==='fog';}
+  get concealed(){return this.invisible>0||this.weather?.kind==='fog'||this.scene===7&&!this.flags.time_sun;}
   needsHelp(o){return Boolean(o.type==='escort'&&!this.flags[o.flag]&&(this.scene!==2||this.flags.lab_storm));}
   hazard(x,y) {
     if(this.massContact(x,y))return true;
@@ -109,7 +109,7 @@ export class Adventure {
     const d=distance(o,this.player)||1;
     return ((o.x-this.player.x)*this.player.face.x+(o.y-this.player.y)*this.player.face.y)/d>0.15;
   }
-  disabled(o){return o.defeated||Boolean(o.flag&&this.flags[o.flag]&&(['turret','piece','target','distant','chest'].includes(o.type)||o.defeatable)) || (o.type==='piece'&&this.flags[this.pieceFlag()]);}
+  disabled(o){return Boolean(o.hiddenUntil&&!this.flags[o.hiddenUntil]||o.hiddenAfter&&this.flags[o.hiddenAfter])||o.defeated||Boolean(o.flag&&this.flags[o.flag]&&(['turret','piece','target','distant','chest'].includes(o.type)||o.defeatable)) || (o.type==='piece'&&this.flags[this.pieceFlag()]);}
   pieceFlag(){return ({1:'street_piece',4:'heart_piece'})[this.scene];}
   use(index) {
     if(!this.running||this.dialog.length||this.cinematic)return false;
@@ -173,13 +173,13 @@ export class Adventure {
       target=(this.scene===0&&this.aimTarget(['chest'],430,true))||this.aimTarget(['distant'],480,true)||this.aimTarget(['piece'],430,true);
       if(!target){this.toast('Mirá un objeto lejano para alcanzarlo con el brazo elástico.');return false;}
       this.effect('elastic',target,1);
-      this.effects[this.effects.length-1].item=target.type;
+      this.effects[this.effects.length-1].item=target.id==='time-gear'?'gear':target.type;
       if(target.type==='chest'){
         this.flag('amaral_unlocked');this.target=null;
-        this.dialog=[['Amaral','¡Al fin! Gracias, Gaspar. ¡El cierre estaba demasiado lejos! Ya pueden elegirme con 5 en toda la aventura.'],['Amaral','Con Z creo neblina que nos oculta, con X despejo el cielo y con C desvío disparos con viento. ¡Siempre quise cambiar el clima de una historieta!']];
+        this.dialog=[['Amaral','¡Al fin! Gracias, Gaspar. ¡El cierre estaba demasiado lejos! Ya pueden elegirme con 5 en toda la aventura.'],['Amaral','Con Z creo neblina que nos oculta, con X despejo el cielo y con C desvío disparos con viento. ¡Siempre quise cambiar el clima de una historieta!'],['Amaral','¡Miren! Apareció un dibujo de reloj junto a la ventana. Gaspar y yo podríamos investigar esa nueva viñeta.']];
         this.effect('star',target,1.5);this.toast('¡Amaral liberada! Se sumó al equipo.');
       }
-      else if(target.type==='distant'){this.flag(target.flag);this.toast('¡Llave alcanzada! El puente se abrió.');}
+      else if(target.type==='distant'){this.flag(target.flag);this.toast(target.id==='time-gear'?'¡Engranaje instalado! Ahora el molino necesita viento de Amaral.':'¡Llave alcanzada! El puente se abrió.');}
       else {target.x=this.player.x+this.player.face.x*45;target.y=this.player.y+this.player.face.y*45;this.toast('¡Objeto al alcance!');}
     } else if(h===3&&index===1) {
       target=this.aimTarget(['enemy'],135,true);
@@ -193,6 +193,17 @@ export class Adventure {
     } else if(h===4) {
       const kind=['fog','sun','wind'][index];this.weather={kind,time:WEATHER_DURATIONS[kind],total:WEATHER_DURATIONS[kind]};
       this.toast(({fog:'¡Neblina! Los enemigos no pueden ver al equipo.',sun:'¡Salió el sol! Toda la viñeta se ilumina.',wind:'¡Viento! Los disparos enemigos se desvían.'})[kind]);
+      if(this.scene===7&&kind==='sun'){this.flag('time_sun');this.toast('¡El panel tiene sol! Apareció un engranaje muy alto.');}
+      if(this.scene===7&&kind==='wind'){
+        if(this.flags.time_gear){this.flag('time_wind');this.toast('¡El reloj se abrió! Acercate y hablá con Aarón.');}
+        else this.toast('El molino gira en falso. Gaspar debe traer el engranaje primero.');
+      }
+    } else if(h===5&&index===0){
+      target=this.aimTarget(['enemy','npc','escort'],TEMPORAL_BUBBLE.reach,true);
+      if(!target){this.toast('Mirá a una persona cercana para encerrarla en una burbuja temporal.');return false;}
+      target.bubble=TEMPORAL_BUBBLE.duration;
+      if(this.scene===7&&target.patrol)this.flag('time_bubble');
+      this.toast('¡Burbuja temporal! Adentro, todo va más lento.');
     }
     this.cooldowns[h][index]=power[2];
     const key=`${h}-${index}`;if(!this.used.includes(key))this.used.push(key);
@@ -214,8 +225,8 @@ export class Adventure {
     }
     if(this.gift&&!this.gift.placed&&distance(this.player,this.gift)<85)return {type:'pickup',text:'Recoger el regalo'};
     if(this.player.x>848&&this.scene<4)return {type:'exit',text:'Ir a la siguiente viñeta'};
-    const o=this.aimTarget(['npc','escort','secret-door','slot','plate','electric','scanner','target','piece','antenna','turret','distant','chest'],90);
-    if(o)return {type:'object',text:o.type==='secret-door'?'Investigar el dibujo':o.type==='npc'||o.type==='escort'?`Hablar con ${o.name}`:`Examinar ${o.name.toLowerCase()}`,object:o};
+    const o=(this.scene===7&&this.aimTarget(['npc'],90))||this.aimTarget(['npc','escort','secret-door','time-door','slot','plate','electric','scanner','target','piece','antenna','turret','distant','chest','solar','windmill','clock'],90);
+    if(o)return {type:'object',text:['secret-door','time-door'].includes(o.type)?'Investigar el dibujo':o.type==='npc'||o.type==='escort'?`Hablar con ${o.name}`:`Examinar ${o.name.toLowerCase()}`,object:o};
     return null;
   }
   interact() {
@@ -238,7 +249,15 @@ export class Adventure {
     }
     if(action.type==='exit'){this.next();return;}
     const o=action.object;
-    if(o.type==='npc'&&this.flags.amaral_unlocked&&['cata','alma-violeta','seshia'].includes(o.id)){
+    if(o.type==='time-door'){this.enter(7);
+    } else if(this.scene===7&&o.id==='aaron'){
+      this.flag('aaron_unlocked');this.target=null;
+      this.dialog=[['Aarón Mamani','¡Gracias, Amaral y Gaspar! Estaba esperando un minuto… ¡que no terminaba nunca! Ahora pueden elegirme con 6 en toda la aventura.'],['Aarón Mamani','Con Z encierro personas en burbujas temporales. Se mueven y actúan mucho más despacio. ¡Probemos con un asistente que camina!']];
+      this.emit('sound','secret');
+    } else if(['solar','windmill','clock'].includes(o.type)){
+      const text=o.type==='solar'?'El panel necesita el sol de Amaral.':o.type==='windmill'?(this.flags.time_gear?'Ya tiene engranaje. Falta el viento de Amaral.':'Le falta un engranaje. Cuando salga el sol, Gaspar puede buscarlo.'):(this.flags.time_wind?'El reloj se abrió. ¡Aarón puede salir!':'El reloj no avanza. Necesita un panel con sol, un engranaje y un molino con viento.');
+      this.dialog=[[o.name,this.flags[o.flag]?'¡Este mecanismo ya funciona!':text]];
+    } else if(o.type==='npc'&&this.flags.amaral_unlocked&&['cata','alma-violeta','seshia'].includes(o.id)){
       this.dialog=[[o.name,'¡Amaral ya salió del cofre! Ahora podemos elegirla con 5 para cambiar el clima.']];
     } else if(this.scene===5&&o.id==='sofia'&&this.party>0){
       this.dialog=[['Sofía','¡Ahora sí hay luces de fiesta! ¡A bailar con Fabrizio!']];
@@ -314,13 +333,15 @@ export class Adventure {
     if(this.massContact(this.player.x,this.player.y)){this.consumed();return;}
     if(this.gift?.carried){this.gift.x=this.player.x+22;this.gift.y=this.player.y-30;}
     for(const o of this.objects) {
-      o.prism=Math.max(0,o.prism-dt);o.stun=Math.max(0,o.stun-dt);
+      o.prism=Math.max(0,o.prism-dt);o.stun=Math.max(0,o.stun-dt);o.bubble=Math.max(0,o.bubble-dt);
+      const rate=o.bubble>0?TEMPORAL_BUBBLE.rate:1;o.animationTime+=dt*rate;
       if(o.type==='escort'&&!this.flags[o.flag]) {
         const active=this.scene!==2||this.flags.lab_storm;
-        if(active&&this.shield>0&&distance(this.player,o)<120){o.x+=22*dt;this.escortTime+=dt;if(this.escortTime>3){this.flag(o.flag);this.toast(`${o.name} llegó a salvo. ¡Buen trabajo!`);}}
+        if(active&&this.shield>0&&distance(this.player,o)<120){o.x+=22*dt*rate;this.escortTime+=dt*rate;if(this.escortTime>3){this.flag(o.flag);this.toast(`${o.name} llegó a salvo. ¡Buen trabajo!`);}}
       }
       if(!['turret','enemy'].includes(o.type)||this.disabled(o)||o.inGift||o.prism>0||o.stun>0)continue;
-      o.shot-=dt;
+      if(o.patrol){if(o.x<=o.patrol.from)o.direction=1;if(o.x>=o.patrol.to)o.direction=-1;o.x+=o.patrol.speed*dt*rate*o.direction;}
+      o.shot-=dt*rate;
       if(o.shot<=0&&!this.concealed&&distance(o,this.player)<510) {
         const d=distance(o,this.player)||1;
         this.bullets.push({x:o.x,y:o.y-10,vx:(this.player.x-o.x)/d*140,vy:(this.player.y-o.y)/d*140,source:o.id,reflected:false,life:7});o.shot=3.5;

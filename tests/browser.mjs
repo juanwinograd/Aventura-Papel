@@ -16,7 +16,7 @@ try {
   const errors=[],failedResources=[];
   page.on('pageerror',error=>errors.push(error.message));page.on('response',response=>{if(response.status()>=400)failedResources.push(`${response.status()} ${response.url()}`);});
   await page.goto(url);await page.evaluate(async()=>{window.adventureModule=await import('/src/app.js');await window.adventureModule.artworkReady;});
-  assert.equal(await page.evaluate(async()=>(await import('/src/illustrations.js')).illustrations.size),9,'las nueve ilustraciones están disponibles');
+  assert.equal(await page.evaluate(async()=>(await import('/src/illustrations.js')).illustrations.size),10,'las diez ilustraciones están disponibles');
   assert.equal(await page.evaluate(async()=>{
     const {Illustrator}=await import('/src/art.js');const canvas=document.createElement('canvas');canvas.width=960;canvas.height=540;
     const illustrator=new Illustrator(canvas);illustrator.reduced=true;const game=window.adventureModule.game;
@@ -92,6 +92,19 @@ try {
   }
   assert.equal(new Set((await state()).used).size,18);await page.reload();await page.evaluate(async()=>{window.adventureModule=await import('/src/app.js');await window.adventureModule.artworkReady;});await page.getByRole('button',{name:'Continuar mi aventura'}).click();
   assert.equal((await state()).flags.amaral_unlocked,true);assert.equal((await state()).player.hero,4);console.log('✓ Amaral: cofre abierto con Gaspar, tres climas, dieciocho poderes y desbloqueo permanente al recargar.');
+  await walk(760,250);await use('e');await dismiss();assert.equal((await state()).scene,7);
+  await select(4);await ready(4,1);await use('x');await flag('time_sun');
+  await select(3);await walk(400,265);await faceRight();await ready(3,0);await use('z');await flag('time_gear');
+  await select(4);await ready(4,2);await use('c');await flag('time_wind');
+  await walk(790,365);await use('e');await dismiss();await flag('aaron_unlocked');await select(5);
+  await page.screenshot({path:'test-results/jardin-aaron.png',fullPage:true});
+  await walk(685,445);await faceRight();await use('z');await flag('time_bubble');
+  assert.equal((await state()).complete,true);assert.equal(new Set((await state()).used).size,19);
+  assert.ok((await state()).objects.some(o=>o.patrol&&o.bubble>0));await page.screenshot({path:'test-results/burbuja-temporal.png',fullPage:true});
+  await page.reload();await page.evaluate(async()=>{window.adventureModule=await import('/src/app.js');await window.adventureModule.artworkReady;});await page.getByRole('button',{name:'Continuar mi aventura'}).click();
+  assert.equal((await state()).scene,7);assert.equal((await state()).player.hero,5);assert.equal((await state()).flags.time_bubble,true);
+  await page.getByRole('button',{name:'Ver viñetas'}).click();await page.getByRole('button',{name:/01 · El cuartel/}).click();await select(5);
+  console.log('✓ Jardín: sol, engranaje con Gaspar, viento, rescate de Aarón, burbuja sobre un asistente que camina y guardado permanente; diecinueve poderes.');
   await page.keyboard.press('Escape');assert.equal(await page.locator('#modal').evaluate(el=>el.open),true);const before=(await state()).time;await page.waitForTimeout(300);assert.equal((await state()).time,before);await page.getByRole('button',{name:'Volver a la aventura'}).click();
   await page.getByRole('button',{name:'Activar sonido'}).click();assert.equal(await page.locator('#sound').getAttribute('aria-pressed'),'true');
   await page.getByRole('button',{name:'Abrir la historieta'}).click();
@@ -110,9 +123,9 @@ try {
   });
   await page.goto(`${url}/Aventura-Papel/`);
   await page.evaluate(async()=>{const app=await import('/Aventura-Papel/src/app.js');await app.artworkReady;});
-  assert.equal(await page.evaluate(async()=>(await import('/Aventura-Papel/src/illustrations.js')).illustrations.size),9,'las ilustraciones cargan con la ruta del proyecto en GitHub Pages');
-  await page.getByRole('button',{name:'Continuar mi aventura'}).click();await page.keyboard.press('5');
-  assert.equal(await page.locator('#power-owner').textContent(),'AMARAL');
+  assert.equal(await page.evaluate(async()=>(await import('/Aventura-Papel/src/illustrations.js')).illustrations.size),10,'las ilustraciones cargan con la ruta del proyecto en GitHub Pages');
+  await page.getByRole('button',{name:'Continuar mi aventura'}).click();await page.keyboard.press('6');
+  assert.equal(await page.locator('#power-owner').textContent(),'AARÓN MAMANI');
   assert.deepEqual(errors,[],'sin errores JavaScript');assert.deepEqual(failedResources,[],'todos los recursos cargan');
   console.log('✓ Guardado y continuación, regreso a viñetas, pausa, sonido, historieta original, pantalla angosta y recursos bajo /Aventura-Papel/.');
 } catch(error) {
