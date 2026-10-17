@@ -1,0 +1,142 @@
+import { Adventure, distance } from './engine.js';
+import { HEROES, SCENES, SAVE_KEY } from './content.js';
+import { Illustrator } from './art.js';
+import { Soundtrack } from './audio.js';
+
+const $=s=>document.querySelector(s);
+const world=$('#world'), modal=$('#modal'), audio=new Soundtrack();
+let saved=null,storageAvailable=true;
+try{const raw=localStorage.getItem(SAVE_KEY);if(raw){saved=JSON.parse(raw);if(saved?.version!==1)saved=null;}}catch{storageAvailable=false;}
+export let game=new Adventure(saved);
+const art=new Illustrator(world);
+let started=false,keys=new Set(),last=0,toastTimer=0,lastHero=-1,lastScene=-1,uiTick=0,lastDialog='';
+const powerKeys=['Z','X','C','V'];
+function save(){
+  if(!started)return;
+  try{localStorage.setItem(SAVE_KEY,JSON.stringify(game.serialize()));storageAvailable=true;$('#save-status').textContent='Guardado en este navegador ✓';}
+  catch{storageAvailable=false;$('#save-status').textContent='Guardado no disponible: mantené abierta esta pestaña';}
+}
+function toast(text){$('#toast').textContent=text;$('#toast').hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').hidden=true,4200);}
+function processEvents(){
+  const events=game.events.splice(0);
+  for(const event of events){
+    if(event.type==='toast')toast(event.detail);
+    if(event.type==='sound')audio.play(event.detail);
+    if(event.type==='solved'){audio.play('secret');if(game.complete)toast(game.scene===6?'¡Completaron la viñeta secreta!':'¡Acertijo resuelto! Ya pueden avanzar.');}
+    if(event.type==='save')save();
+    if(event.type==='scene'){$('#scene-flash').classList.remove('turn');void $('#scene-flash').offsetWidth;$('#scene-flash').classList.add('turn');}
+  }
+}
+function start(fresh=false){
+  if(fresh)game=new Adventure();
+  started=true;$('#home').hidden=true;game.start();audio.unlock();lastHero=-1;lastScene=-1;save();sync();world.focus();
+}
+function selectHero(index){if(modal.open)return;game.select(index);lastHero=-1;sync();if(started)world.focus();}
+function powers(){
+  const h=HEROES[game.player.hero];$('#power-owner').textContent=h.name.toUpperCase();
+  const el=$('#powers');el.style.setProperty('--hero-color',h.color);el.style.setProperty('--hero-dark',h.dark);
+  el.replaceChildren(...h.powers.map((p,i)=>{
+    const button=document.createElement('button');button.className='power';button.dataset.power=i;
+    button.innerHTML=`<span class="power-icon" aria-hidden="true">${p[3]}</span><span class="power-copy"><strong>${p[0]}</strong><small>${p[1]}</small></span><span class="power-key">${powerKeys[i]}</span>`;
+    button.title=`${p[0]} (${powerKeys[i]}): ${p[1]}`;
+    button.addEventListener('click',()=>{if(started&&!modal.open){game.use(i);sync();world.focus();}else if(!started)toast('Entrá en la historieta para probar los poderes.');});return button;
+  }));
+}
+function makeCards(){
+  const el=$('#characters');HEROES.forEach((h,i)=>{
+    const button=document.createElement('button');button.className='hero-card';button.dataset.hero=i;button.style.setProperty('--hero-color',h.color);button.style.setProperty('--hero-bg',h.color+'0d');
+    button.setAttribute('aria-label',`Elegir a ${h.name} (${i+1})`);
+    button.innerHTML=`<canvas width="110" height="120" aria-hidden="true"></canvas><div><h3>${h.name}</h3><p>${h.trait}</p></div><span class="hero-key">${i+1}</span><span class="selected-dot" aria-hidden="true">●</span>`;
+    const portrait=new Illustrator(button.querySelector('canvas'));portrait.hero(i,55,110,.9,0);
+    button.addEventListener('click',()=>selectHero(i));el.append(button);
+  });
+}
+function sync(){
+  if(lastHero!==game.player.hero){
+    lastHero=game.player.hero;powers();document.querySelectorAll('.hero-card').forEach((b,i)=>{b.classList.toggle('selected',i===lastHero);b.setAttribute('aria-pressed',String(i===lastHero));b.querySelector('.selected-dot').hidden=i!==lastHero;});
+  }
+  if(lastScene!==game.scene){lastScene=game.scene;$('#chapter-number').textContent=String(game.scene+1).padStart(2,'0');$('#chapter-name').textContent=game.definition.title;}
+  const all=game.definition.requires,remaining=all.filter(f=>!game.flags[f]);
+  const objective=started?(game.scene<5&&remaining.length===0?(game.scene===4?'Las esencias están listas. Andá al corazón de la derecha y pulsá E.':'¡Todo listo! Andá a la puerta de la derecha y pulsá E.'):game.scene===6&&game.complete?'¡La viñeta secreta ya es parte de su historia! Seguí jugando o volvé al cuartel.':game.definition.objective):'Detener el apocalipsis… y que todo termine en una fiesta.';
+  $('#objective').textContent=objective;$('#objective').classList.toggle('hud-complete',started&&game.complete);
+  $('#marks').textContent=[1,2,3].map(n=>game.marks.includes(n)?'★':'○').join(' ');
+  $('#health').textContent=Array.from({length:3},(_,i)=>i<game.player.health?'♡':'·').join(' ');$('#health').setAttribute('aria-label',`${game.player.health} oportunidades`);
+  const context=started?game.context():null;
+  $('#interaction').hidden=!context||game.dialog.length>0;
+  if(context)$('#interaction span').textContent=context.text;
+  $('#interact-button').disabled=!started||modal.open;
+  $('#interact-button').innerHTML=`<kbd>E</kbd> ${context?.text||'Interactuar'} <span>↵</span>`;
+  document.querySelectorAll('.power').forEach((button,i)=>{
+    const cd=game.cooldowns[game.player.hero][i];const active=game.player.hero===2&&((i===2&&game.shield>0)||(i===3&&game.small));
+    button.querySelector('.power-key').textContent=active?'↩':cd>0?Math.ceil(cd)+'s':powerKeys[i];
+    button.setAttribute('aria-disabled',String(!started||cd>0&&!active));button.style.setProperty('--charge',cd>0?((1-cd/HEROES[game.player.hero].powers[i][2])*100)+'%':'0%');
+    button.setAttribute('aria-label',`${HEROES[game.player.hero].powers[i][0]}: ${active?'activo, pulsar para cancelar':cd>0?'recargando '+Math.ceil(cd)+' segundos':'listo, tecla '+powerKeys[i]}`);
+  });
+  const dialogue=game.dialog[0];$('#bubble').hidden=!started||!dialogue;
+  const key=dialogue?dialogue.join('|'):'';
+  if(key!==lastDialog){lastDialog=key;if(dialogue){$('#speaker').textContent=dialogue[0];$('#speech').textContent=dialogue[1];}}
+}
+function showModal(html,eyebrow='CUADERNO DE AVENTURA'){
+  keys.clear();game.target=null;game.running=false;$('#modal-content').innerHTML=html;$('#modal-eyebrow').textContent=eyebrow;if(!modal.open)modal.showModal();sync();
+}
+function closeModal(){modal.close();game.running=started;keys.clear();if(started)world.focus();}
+modal.addEventListener('cancel',event=>{event.preventDefault();closeModal();});
+modal.addEventListener('close',()=>{game.running=started;keys.clear();});
+$('#close-modal').addEventListener('click',closeModal);
+function help(){
+  showModal(`<h2>${started?'Una pausa entre viñetas':'Pequeña guía de superpoderes'}</h2><p>Explorá, hablá con los personajes y combiná poderes. Cada héroe tiene una solución distinta. Las puertas se abren cuando resolvés los acertijos de la viñeta.</p><div class="controls-grid"><div><strong>Moverte</strong><p>Flechas o W A S D.<br>También podés hacer clic en el suelo.</p></div><div><strong>Cambiar de personaje</strong><p>1 Vicente · 2 Fabrizio · 3 Luca.<br>O elegí su tarjeta.</p></div><div><strong>Poderes</strong><p>Z · X · C · V, o sus botones.<br>Mirá al objetivo antes de lanzar.</p></div><div><strong>Interactuar</strong><p>E o Espacio para hablar, recoger regalos y avanzar. Los regalos se abren con E al llevarlos; junto a un mecanismo, E los coloca.</p></div></div><p>Al recibir tres golpes volvés al punto de control. Lo que resolviste queda resuelto. Pedí <b>Una pista</b> cuando quieras. Los poderes se recargan solos, también al cambiar de héroe.</p><label class="volume-control">Volumen <input id="volume" type="range" min="0" max="1" step="0.05" value="${audio.volume}"></label><label class="volume-control"><input id="reduced" type="checkbox" ${art.reduced?'checked':''}> Reducir movimiento</label>${started?'<button id="resume" class="primary-button">Volver a la aventura →</button><button id="restart-screen" class="danger-button">Volver al punto de control</button>':''}<p class="credit-note">Una aventura nacida en una historieta de verdad.</p>`);
+  $('#volume').addEventListener('input',e=>audio.volume=Number(e.target.value));$('#reduced').addEventListener('change',e=>art.reduced=e.target.checked);
+  $('#resume')?.addEventListener('click',closeModal);$('#restart-screen')?.addEventListener('click',()=>{closeModal();game.enter(game.scene,false);toast('Punto de control restaurado. Lo resuelto sigue resuelto.');});
+}
+function chapters(){
+  showModal(`<h2>Un mundo entre viñetas</h2><p>Volvé a las páginas que ya exploraste. Los acertijos resueltos y las marcas se conservan.</p><div class="chapter-list">${SCENES.map((s,i)=>`<button data-scene="${i}" class="${game.scene===i?'current':''}" ${(!started||i===6?!started||!game.flags.secret_open:i>game.maxScene)?'disabled':''}><span>${String(i+1).padStart(2,'0')} · ${i===6&&!game.flags.secret_open?'Una viñeta por descubrir':s.title}</span><span>${i===6&&!game.flags.secret_open?'?':i===game.scene?'← Estás acá':i<=game.maxScene||i===6&&game.flags.secret_open?'↗':'○'}</span></button>`).join('')}</div>${started?'<button id="new-adventure" class="danger-button">Empezar una nueva aventura</button>':''}`);
+  document.querySelectorAll('[data-scene]').forEach(b=>b.addEventListener('click',()=>{const scene=Number(b.dataset.scene);closeModal();game.enter(scene);sync();}));
+  $('#new-adventure')?.addEventListener('click',confirmNew);
+}
+function confirmNew(){
+  showModal('<h2>¿Una nueva hoja en blanco?</h2><p>Se borrará el progreso guardado de esta aventura, incluidas las marcas secretas. Podés seguir explorando sin empezar de nuevo.</p><button id="confirm-new" class="primary-button">Sí, empezar de nuevo →</button><button id="keep-playing" class="text-button">Conservar mi aventura</button>');
+  $('#confirm-new').addEventListener('click',()=>{closeModal();start(true);});$('#keep-playing').addEventListener('click',closeModal);
+}
+let page=1;
+function sketchbook(){
+  showModal(`<h2>La historieta original</h2><p>De acá salió todo. Dibujos originales, sin cambiar.</p><div class="gallery-nav"><button id="prev-page" ${page===1?'disabled':''}>← Anterior</button><span>Página ${page} de 12</span><button id="next-page" ${page===12?'disabled':''}>Siguiente →</button></div><img class="gallery-image" src="historieta/${String(page).padStart(2,'0')}.jpg" alt="Página ${page} de la historieta original El apocalipsis Vicente">`,'EL CUADERNO DONDE EMPEZÓ LA AVENTURA');
+  $('#prev-page').addEventListener('click',()=>{page--;sketchbook();});$('#next-page').addEventListener('click',()=>{page++;sketchbook();});
+}
+$('#begin').addEventListener('click',()=>saved?confirmNew():start(true));
+$('#continue').hidden=!saved;$('#continue').addEventListener('click',()=>start(false));
+$('#help').addEventListener('click',help);$('#chapters').addEventListener('click',chapters);$('#sketchbook').addEventListener('click',sketchbook);
+$('#hint').addEventListener('click',()=>{if(!started){toast('Entrá en la historieta. Las pistas te acompañan en cada viñeta.');return;}showModal(`<h2>Una idea para seguir…</h2><p>${game.definition.hint}</p><p>Acertijos resueltos: ${game.definition.requires.filter(f=>game.flags[f]).length} de ${game.definition.requires.length}.</p><button id="got-it" class="primary-button">¡Vamos a probar! →</button>`,'UNA PISTA DEL ANCIANITO');$('#got-it').addEventListener('click',closeModal);});
+$('#advance').addEventListener('click',()=>{game.interact();sync();world.focus();});
+$('#interact-button').addEventListener('click',()=>{if(!modal.open)game.interact();sync();world.focus();});
+$('#sound').addEventListener('click',()=>{audio.enabled=!audio.enabled;audio.unlock();$('#sound').setAttribute('aria-pressed',String(audio.enabled));$('#sound').setAttribute('aria-label',audio.enabled?'Desactivar sonido':'Activar sonido');$('#sound span').textContent=audio.enabled?'Sonido activado':'Sonido apagado';if(audio.enabled)audio.play('secret');});
+window.addEventListener('keydown',e=>{
+  if(e.key==='Escape'&&!modal.open&&started){e.preventDefault();help();return;}
+  if(modal.open||!started||['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName))return;
+  const key=e.key.toLowerCase();
+  if(['arrowup','arrowdown','arrowleft','arrowright',' ','w','a','s','d','e','z','x','c','v','1','2','3'].includes(key))e.preventDefault();
+  keys.add(key);if(e.repeat)return;audio.unlock();
+  if(['1','2','3'].includes(key))selectHero(Number(key)-1);
+  if(key==='e'||key===' '){game.interact();sync();}
+  if(['z','x','c','v'].includes(key)){game.use(['z','x','c','v'].indexOf(key));sync();}
+});
+window.addEventListener('keyup',e=>keys.delete(e.key.toLowerCase()));
+window.addEventListener('blur',()=>keys.clear());
+document.addEventListener('visibilitychange',()=>{keys.clear();if(document.hidden&&started&&!modal.open)help();});
+world.addEventListener('pointerdown',e=>{
+  if(!started||modal.open)return;world.focus();
+  if(game.dialog.length){game.interact();sync();return;}
+  const rect=world.getBoundingClientRect(),point={x:(e.clientX-rect.left)/rect.width*960,y:(e.clientY-rect.top)/rect.height*540};
+  if(!game.safe(point.x,point.y))return;
+  const context=game.context();if(context&&distance(point,game.player)<42){game.interact();sync();return;}
+  game.target=point;
+});
+function frame(now){
+  const dt=Math.min(.05,(now-last)/1000||0);last=now;
+  if(!started)game.time+=dt;
+  else if(!modal.open){const x=Number(keys.has('arrowright')||keys.has('d'))-Number(keys.has('arrowleft')||keys.has('a')),y=Number(keys.has('arrowdown')||keys.has('s'))-Number(keys.has('arrowup')||keys.has('w'));game.update(dt,{x,y});}
+  processEvents();uiTick+=dt;if(uiTick>.09){sync();uiTick=0;}
+  art.draw(game,!started);requestAnimationFrame(frame);
+}
+makeCards();sync();
+if(!storageAvailable)$('#save-status').textContent='Guardado no disponible en este navegador';
+document.fonts.ready.then(()=>requestAnimationFrame(frame));
