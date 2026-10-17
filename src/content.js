@@ -3,11 +3,11 @@ export const HEROES = [
   { id:'fabrizio', name:'Fabrizio', color:'#9ecb52', dark:'#4d751c', trait:'Una sorpresa en cada resorte', powers:[['Cubo reflector','Devolvé los disparos al que los lanzó.',5,'▧'],['Invisibilidad','Cinco segundos para pasar sin que te vean.',13,'◌'],['Picos','Lanzá picos a enemigos y blancos.',2,'⋀'],['¡Fiesta!','Enterrate, prendé las luces y celebrá.',5,'✳']] },
   { id:'luca', name:'Luca', color:'#20b5d5', dark:'#08788f', trait:'Pequeño, pero con mucha energía', powers:[['Rayo eléctrico','Dale energía a las máquinas o aturdí enemigos.',2,'ϟ'],['Tormenta','Cambiá el escenario con una tormenta.',10,'☂'],['Campo de fuerza','Protegé a todos los que estén cerca. Te quedás quieto.',11,'◎'],['Hacerse chiquito','Entrá en pasadizos. Volvé a pulsar para crecer.',3,'↧']] },
   { id:'gaspar', name:'Gaspar', color:'#08afce', dark:'#08778d', trait:'El hermano que llega más lejos', unlock:'gaspar_unlocked', powers:[['Brazo elástico','Alcanzá objetos que están muy lejos.',3,'↔'],['Superpuño','Un golpe enorme contra los enemigos cercanos.',3,'✊'],['Teletransportarse','Saltá a un lugar seguro al azar.',8,'↝'],['Papapumba','Lanzá una papa explosiva. ¡PUM!',5,'●']] },
-  { id:'amaral', name:'Amaral', color:'#1eb8ca', dark:'#08798b', trait:'Todos los climas en un barrilete', unlock:'amaral_unlocked', powers:[['Neblina','Ocultá al equipo de los enemigos durante seis segundos.',10,'≋'],['Soleado','Despejá la neblina e iluminá toda la viñeta.',8,'☀'],['Viento','Desviá los disparos enemigos con ráfagas de viento.',9,'↠']] },
+  { id:'amaral', name:'Amaral', color:'#ef3b50', dark:'#ac2436', trait:'El clima está de su lado', unlock:'amaral_unlocked', powers:[['Neblina','Ocultá al equipo de los enemigos durante seis segundos.',10,'≋'],['Soleado','Despejá la neblina e iluminá toda la viñeta.',8,'☀'],['Viento','Desviá los disparos enemigos con ráfagas de viento.',9,'↠']] },
 ];
 
 const headquartersGuests=[
-  {id:'alma-roja',type:'npc',name:'Alma',character:'alma-red',x:250,y:450,dialog:[['Alma','¡Yo cuido el cuartel! Ustedes salven a Vicente.']]},
+  {id:'alma-suave',type:'npc',name:'Alma',character:'alma-face',x:250,y:450,dialog:[['Alma','¡Yo cuido el cuartel! Ustedes salven a Vicente.']]},
   {id:'cata',type:'npc',name:'Cata',character:'cata',x:385,y:425,dialog:[['Cata','Escuché una voz en el cofre. ¡No es un mueble que habla!']]},
   {id:'alma-violeta',type:'npc',name:'Alma',character:'alma-purple',x:535,y:450,dialog:[['Alma','¿Y si alguien pudiera estirar el brazo hasta el cierre del cofre?']]},
   {id:'sofia',type:'npc',name:'Sofía',character:'sofia',x:755,y:440,dialog:[['Sofía','La masa rosa no puede entrar acá. ¡Este cuartel aguanta de todo!']]},
@@ -34,7 +34,7 @@ export const SCENES = [
   ] },
   { title:'El laboratorio de tormentas', subtitle:'Una solución del tamaño de una chispa.', caption:'Una pared, un pasadizo y un poquito de mal tiempo.', theme:'lab', requires:['lab_power','lab_storm','lab_escort'], objective:'Encendé el laboratorio y ayudá al Ancianito a cruzar.', hint:'Luca entra por el pasadizo con V. Usá Z cerca de la consola y X para desplegar la antena con una tormenta. Acercate al Ancianito y mantené C: el campo lo protege mientras cruza.', mark:{x:95,y:245}, objects:[
     {id:'switch',type:'electric',name:'Consola del pasadizo',x:600,y:340,flag:'lab_power'},
-    {id:'antenna',type:'antenna',name:'Antena plegada',x:770,y:265,flag:'lab_storm'},
+    {id:'antenna',type:'antenna',name:'Antena plegada',x:805,y:375,flag:'lab_storm'},
     {id:'escort',type:'escort',name:'Ancianito',character:'anciano',x:720,y:425,flag:'lab_escort'},
   ] },
   { title:'El borde del apocalipsis', subtitle:'No pises lo rosa. En serio.', caption:'¡La masa está cerca! Por suerte, las ideas también.', theme:'edge', requires:['edge_plate','edge_reflect','edge_teleport'], objective:'Activá la placa y frená al robot. Después, Vicente debe teletransportarse más allá de la masa.', hint:'Vicente convierte al asistente en regalo con X. Recogelo con E y dejalo sobre la placa con E. Fabrizio devuelve el disparo del robot con Z. La masa bloquea todo el camino a la salida: cuando la placa y el robot estén resueltos, usá C de Vicente para saltar al otro lado.', mark:{x:105,y:245}, objects:[
@@ -54,7 +54,7 @@ export const SCENES = [
     {id:'reportero',type:'npc',name:'Reportero',x:245,y:355,character:'reportero',dialog:[['Reportero','¡El apocalipsis fue cancelado! Gracias a este equipo y sus superpoderes. Ahora sí: ¡hagamos una fiesta!']]},
     {id:'anciano',type:'npc',name:'Ancianito',x:665,y:350,character:'anciano',dialog:[['Ancianito','Algunas historias esconden otra historia en los márgenes. Si encontraste tres marcas, mirá el dibujo del cuartel.']]},
     {id:'secret-door',type:'secret-door',name:'El dibujo del cuartel',x:450,y:260},
-    chest,...headquartersGuests.map(o=>({...o,dialog:o.id==='sofia'?[['Sofía','¡Qué suerte que volvió Vicente! Lástima que no hay luces de fiesta… ¿Fabrizio sabe hacer algo?']]:o.id==='seshia'?[['Seshia','¡Al fin volvió la tranquilidad! Si Amaral sigue en el cofre, podemos volver al cuartel a ayudarla.']]:o.id==='alma-roja'?[['Alma','¡El apocalipsis se terminó! ¿Bailamos?']]:o.dialog})),
+    chest,...headquartersGuests.map(o=>({...o,dialog:o.id==='sofia'?[['Sofía','¡Qué suerte que volvió Vicente! Lástima que no hay luces de fiesta… ¿Fabrizio sabe hacer algo?']]:o.id==='seshia'?[['Seshia','¡Al fin volvió la tranquilidad! Si Amaral sigue en el cofre, podemos volver al cuartel a ayudarla.']]:o.id==='alma-suave'?[['Alma','¡El apocalipsis se terminó! ¿Bailamos?']]:o.dialog})),
   ] },
   { title:'La viñeta de Gaspar', subtitle:'¡Un nuevo héroe salió del margen!', caption:'Gaspar llegó. ¡Sus brazos no conocen los márgenes!', theme:'secret', requires:['secret_reach','secret_guard1','secret_guard2'], objective:'Usá el brazo elástico para alcanzar la llave y vencé a los asistentes.', hint:'Elegí a Gaspar con 4. Desde el lado izquierdo, mirá la llave lejana y usá Z: el brazo elástico la trae y abre el puente. Con X, el superpuño alcanza enemigos cercanos. Con V, Papapumba lanza una papa que explota a distancia. C te lleva fuera de peligro.', objects:[
     {id:'key',type:'distant',name:'Llave del puente',x:800,y:265,flag:'secret_reach'},

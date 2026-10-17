@@ -31,11 +31,7 @@ export class Illustrator {
     c.translate(0,bob-(id===1?0:8));
     if(this.dancing&&!this.reduced)c.rotate(Math.sin(time*7+x*.02)*.12);
     if(id===4){
-      this.circle(0,-69,15,'#efb53b',7,PAPER);
-      this.path([[0,-48],[31,-18],[0,14],[-31,-18]],'#169fb8',3,'#32bed4',true);
-      this.line(-31,-18,0,-48,'#e64264',6);this.line(0,-48,31,-18,'#98c84c',6);
-      this.line(31,-18,0,14,'#e75d8d',6);this.line(0,14,-31,-18,'#eec13d',6);
-      this.circle(0,-18,7,'#168ca3',3);
+      this.girl('amaral',0,0);
     } else if(id===3){
       this.circle(0,-44,23,color,5,PAPER);
       for(let i=0;i<13;i++){const a=-Math.PI/2+i/13*tau,len=Math.sin(a)>.7?24:11+(i%3)*3;this.line(Math.cos(a)*23,-44+Math.sin(a)*23,Math.cos(a)*(23+len),-44+Math.sin(a)*(23+len),color,5);}
@@ -63,9 +59,10 @@ export class Illustrator {
   npc(id,x,y,t=0) {
     const c=this.c;c.save();
     if(this.dancing&&!this.reduced){c.translate(x,y+Math.sin(t*8+x*.03)*5);c.rotate(Math.sin(t*6+x*.02)*.12);x=0;y=0;}
+    if(['alma-face','fusi','cata'].includes(id)&&!this.reduced)y+=Math.sin(t*3)*3;
     const colors={anciano:'#22b8d4',reportero:'#efbc4c',fusi:'#7c5cb5',assistant:'#7c5cb5',sebastian:'#625144',fusion:'#13b3ae'};
     const color=colors[id]||'#df7e4f';
-    if(['alma-red','alma-purple','cata','sofia','seshia'].includes(id)){this.girl(id,x,y);c.restore();return;}
+    if(['alma-face','alma-purple','cata','sofia','seshia'].includes(id)){this.girl(id,x,y);c.restore();return;}
     if(id==='fusi'){
       this.circle(x,y-53,15,color,5,PAPER);
       this.path([[x-6,y-68],[x-12,y-82],[x,y-71],[x+10,y-83]],color,5);
@@ -74,7 +71,7 @@ export class Illustrator {
         this.path([[x+side*12,y-45],[x+side*21,y-33],[x+side*29,y-37]],color,5);
       }
       this.line(x,y-37,x,y-7,color,5);this.line(x-15,y-23,x+15,y-23,color,5);
-      this.line(x,y-7,x-10,y+7,color,5);this.line(x,y-7,x+10,y+7,color,5);c.restore();return;
+      c.restore();return;
     }
     if(id==='anciano') {
       this.circle(x-4,y-48,12,color,4,PAPER);
@@ -96,16 +93,26 @@ export class Illustrator {
     c.restore();
   }
   girl(id,x,y){
-    const c=this.c,small=id==='cata'||id==='seshia',color=({'alma-red':'#ef3b50','alma-purple':'#6841b4',cata:'#7045b7',sofia:'#08b1d0',seshia:'#f29b43'})[id];
+    const c=this.c,small=id==='cata'||id==='seshia',color=({amaral:'#ef3b50','alma-face':'#b9bacb','alma-purple':'#6841b4',cata:'#7045b7',sofia:'#08b1d0',seshia:'#f29b43'})[id];
     c.save();c.translate(x,y);if(small)c.scale(.77,.77);
+    if(id==='alma-face'){
+      this.circle(0,-39,25,color,3.5);
+      this.circle(-8,-45,4,color,2.5,color);this.circle(8,-45,4,color,2.5,color);
+      this.path([[-12,-29],[-6,-24],[2,-23],[10,-27],[13,-32]],color,3);
+      for(const side of [-1,1]){
+        this.path([[side*11,-62],[side*25,-71],[side*33,-65],[side*38,-48],[side*51,-45]],color,3);
+        this.path([[side*22,-48],[side*33,-30],[side*48,-29]],color,3);
+      }
+      c.restore();return;
+    }
     this.circle(0,-52,14,color,6,id==='sofia'?color:PAPER);
     this.line(0,-36,0,-7,color,6);this.line(0,-26,-17,-21,color,6);this.line(0,-26,17,-21,color,6);
-    if(id!=='seshia'){this.line(0,-7,-12,13,color,6);this.line(0,-7,12,13,color,6);}
+    if(!['seshia','cata'].includes(id)){this.line(0,-7,-12,13,color,6);this.line(0,-7,12,13,color,6);}
     if(['alma-purple','cata','seshia'].includes(id))for(const side of [-1,1]){
       this.path([[side*12,-61],[side*22,-45],[side*33,-47],[side*36,-53]],color,6);
       if(id==='alma-purple')this.path([[side*14,-48],[side*24,-36],[side*35,-39]],color,5);
     }
-    if(id==='alma-red'){this.line(-27,-19,-27,-76,color,5);this.path([[-40,-48],[-27,-81],[-15,-48],[-40,-48]],color,5);}
+    if(id==='amaral'){this.line(-27,-19,-27,-76,color,5);this.path([[-40,-48],[-27,-81],[-15,-48],[-40,-48]],color,5);}
     if(id==='cata')this.circle(0,-8,8,color,4,color);
     if(id==='sofia'){this.circle(4,-57,3,'#82d8e2',2,'#82d8e2');}
     c.restore();
@@ -260,7 +267,7 @@ export class Illustrator {
     } else if(o.type==='target') {this.circle(x,y-29,39,done?'#a3b786':'#955c50',2,PAPER);this.circle(x,y-28,27,'#b37758',3,'#fff6dc');this.circle(x,y-28,17,'#d35f65',4);this.circle(x,y-28,6,'#d35f65',2,'#d35f65');this.text(done?'✓':'BLANCO · C',x,y+28,done?26:18,done?'#7f9e4d':'#965349','center');}
     else if(o.type==='slot') {this.box(x-34,y-52,68,50,done?'#e3edcc':'#eee0ca','#a89373',2);this.box(x-16,y-38,32,17,done?'#b0c985':'#bcaa8c','#a89373',2);this.text(done?'✓':'◇',x,y-66,24,done?'#7f9e4d':'#a89373','center');}
     else if(o.type==='plate') {this.path([[x-36,y-8],[x+24,y-14],[x+37,y],[x-24,y+7]],'#9a927f',2,done?'#b9d189':'#ddd6c5',true);if(done)this.gift(x,y-6,.8);}
-    else if(o.type==='antenna') {this.circle(x,y-55,49,'#568e8b',2,PAPER);this.line(x,y,x,y-70,'#477b78',5);this.path(done?[[x-42,y-82],[x,y-50],[x+42,y-82]]:[[x-13,y-84],[x,y-50],[x+13,y-84]],'#3d9b9c',5);this.circle(x,y-54,5,'#558b89',2,'#f0d078');this.text(done?'¡Desplegada!':'ANTENA · X',x,y+27,19,'#417b79','center');}
+    else if(o.type==='antenna') {this.line(x,y,x,y-70,'#477b78',5);this.path(done?[[x-42,y-82],[x,y-50],[x+42,y-82]]:[[x-13,y-84],[x,y-50],[x+13,y-84]],'#3d9b9c',5);this.circle(x,y-54,5,'#558b89',2,'#f0d078');this.text(done?'¡Desplegada!':'ANTENA · X',x,y+27,19,'#417b79','center');}
     else if(o.type==='secret-door') {this.box(x-22,y-43,44,33,'#fff6d9','#beaf86',1);this.star(x,y-27,11,'#c2a05a','#f5e1a3');if(game.marks.length===3)this.text('✧',x+34,y-48,32,'#c9a04d','center');}
     if(distanceTo(o,game.player)<100&&!game.dialog.length){this.box(x-64,y+15,128,25,'#fffdf3','#d2c6ae',1);this.text(o.name,x,y+33,15,'#726952','center');}
   }
