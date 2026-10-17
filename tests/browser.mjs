@@ -1,0 +1,82 @@
+import assert from 'node:assert/strict';
+import { spawn } from 'node:child_process';
+import { mkdir } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
+import { chromium } from 'playwright';
+
+const port=Number(process.env.TEST_PORT||3107),url=`http://127.0.0.1:${port}`;
+const server=spawn(process.execPath,['scripts/server.mjs'],{env:{...process.env,PORT:String(port)},stdio:'pipe'});
+let serverLog='';server.stdout.on('data',b=>serverLog+=b);server.stderr.on('data',b=>serverLog+=b);
+await mkdir('test-results',{recursive:true});
+let browser,page;
+try {
+  for(let i=0;i<70;i++){try{if((await fetch(url)).ok)break;}catch{}await new Promise(r=>setTimeout(r,100));}
+  browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH||(existsSync('/usr/bin/chromium')?'/usr/bin/chromium':undefined),headless:true,args:['--no-sandbox']});
+  page=await browser.newPage({viewport:{width:1440,height:1100},deviceScaleFactor:1});
+  const errors=[],failedResources=[];
+  page.on('pageerror',error=>errors.push(error.message));page.on('response',response=>{if(response.status()>=400)failedResources.push(`${response.status()} ${response.url()}`);});
+  await page.goto(url);await page.evaluate(()=>document.fonts.ready);await page.evaluate(async()=>{window.adventureModule=await import('/src/app.js');});
+  await page.screenshot({path:'test-results/inicio.png',fullPage:true});
+  assert.match(await page.title(),/El apocalipsis Vicente/);
+  await page.getByRole('button',{name:'¡Entrar en la historieta!'}).click();
+  const state=()=>page.evaluate(async()=>{const{game:g}=await import('/src/app.js');return{scene:g.scene,flags:g.flags,player:g.player,dialog:g.dialog,marks:g.marks,used:g.used,gift:g.gift,small:g.small,shield:g.shield,cooldowns:g.cooldowns,objects:g.objects,complete:g.complete,time:g.time};});
+  async function dismiss(){for(let i=0;i<6&&(await state()).dialog.length;i++)await page.keyboard.press('e');}
+  async function walk(x,y){
+    await dismiss();const box=await page.locator('#world').boundingBox();await page.mouse.click(box.x+x/960*box.width,box.y+y/540*box.height);
+    await page.waitForFunction(({x,y})=>{const g=window.adventureModule.game;return Math.hypot(g.player.x-x,g.player.y-y)<9;},{x,y},{timeout:13000});
+  }
+  async function faceRight(){await page.keyboard.down('ArrowRight');await page.waitForTimeout(60);await page.keyboard.up('ArrowRight');}
+  async function select(h){await page.keyboard.press(String(h+1));assert.equal((await state()).player.hero,h);}
+  async function use(key){await page.keyboard.press(key);}
+  async function flag(name){await page.waitForFunction(n=>window.adventureModule.game.flags[n]===true,name,{timeout:12000});}
+  async function next(scene){await walk(885,455);await use('e');await page.waitForFunction(n=>window.adventureModule.game.scene===n,scene,{timeout:4000});await dismiss();}
+  async function mark(x,y){await walk(x,y);await use('e');}
+  async function ready(hero,power){await page.waitForFunction(({hero,power})=>window.adventureModule.game.cooldowns[hero][power]===0,{hero,power},{timeout:15000});}
+  async function carryPiece(x,y,slotX,slotY){await ready(0,1);await select(0);await walk(x-70,y);await faceRight();await use('x');assert.ok((await state()).gift,'se creó un regalo; estado: '+JSON.stringify(await state()));await walk(x,y);await use('e');assert.equal((await state()).gift.carried,true);await walk(slotX-50,slotY);await use('e');}
+
+  await dismiss();await select(2);await walk(305,345);await use('z');await flag('base_power');
+  await select(1);await walk(610,325);await use('z');await flag('base_reflect');
+  await next(1);console.log('✓ Cuartel: electricidad, cubo y salida mediante controles reales.');
+
+  await select(0);await walk(295,340);await use('z');await flag('street_prism');
+  await carryPiece(210,435,800,415);await flag('street_piece');
+  await select(1);await walk(470,400);await use('x');await walk(545,400);await flag('street_sneak');
+  await walk(610,285);await use('c');await flag('street_target');
+  await mark(865,245);assert.deepEqual((await state()).marks,[1]);
+  await next(2);console.log('✓ Calle: prisma, regalo transportado, invisibilidad, picos y primera marca.');
+
+  await mark(95,245);await select(2);await walk(460,350);await use('v');await walk(565,350);assert.equal((await state()).small,true);
+  await use('v');assert.equal((await state()).small,false);await use('z');await flag('lab_power');await use('x');await flag('lab_storm');
+  await walk(720,425);await use('c');await flag('lab_escort');await use('c');
+  await next(3);console.log('✓ Laboratorio: conducto pequeño, tormenta y protección del Ancianito.');
+
+  await mark(105,245);await carryPiece(270,335,480,440);await flag('edge_plate');
+  await ready(0,2);await use('c');await flag('edge_teleport');
+  await select(1);await walk(665,315);await faceRight();await use('z');await flag('edge_reflect');
+  await next(4);console.log('✓ Borde: enemigo-regalo sobre placa, teletransporte seguro y robot.');
+
+  await select(2);await walk(225,325);await use('z');await flag('heart_power');
+  await walk(530,370);await ready(2,2);await use('c');await flag('heart_escort');await use('c');
+  await carryPiece(650,290,800,420);await flag('heart_piece');await next(5);
+  assert.equal((await state()).flags.victory,true);await select(1);await use('v');
+  await page.screenshot({path:'test-results/final.png',fullPage:true});console.log('✓ Final: tres esencias, rescate de Vicente y fiesta.');
+
+  await walk(450,250);await use('e');await dismiss();assert.equal((await state()).scene,6);
+  await select(2);await walk(225,325);await ready(2,0);await use('z');await flag('secret_power');
+  await carryPiece(560,295,770,420);await flag('secret_piece');await select(1);await ready(1,3);await use('v');await flag('secret_party');
+  assert.equal((await state()).complete,true);assert.equal(new Set((await state()).used).size,11);
+  await page.screenshot({path:'test-results/secreto.png',fullPage:true});console.log('✓ Secreto: desbloqueo por las tres marcas y desafío de los tres héroes; once poderes usados.');
+
+  await page.reload();await page.evaluate(async()=>{window.adventureModule=await import('/src/app.js');});await page.getByRole('button',{name:'Continuar mi aventura'}).click();assert.equal((await state()).scene,6);assert.equal((await state()).flags.secret_party,true);assert.equal((await state()).marks.length,3);
+  await page.getByRole('button',{name:'Ver viñetas'}).click();await page.getByRole('button',{name:/01 · El cuartel/}).click();assert.equal((await state()).scene,0);assert.equal((await state()).flags.base_power,true);
+  await page.keyboard.press('Escape');assert.equal(await page.locator('#modal').evaluate(el=>el.open),true);const before=(await state()).time;await page.waitForTimeout(300);assert.equal((await state()).time,before);await page.getByRole('button',{name:'Volver a la aventura'}).click();
+  await page.getByRole('button',{name:'Activar sonido'}).click();assert.equal(await page.locator('#sound').getAttribute('aria-pressed'),'true');
+  await page.getByRole('button',{name:'Abrir la historieta'}).click();await page.locator('.gallery-image').evaluate(img=>img.decode());await page.getByRole('button',{name:'Siguiente'}).click();assert.match(await page.locator('.gallery-image').getAttribute('alt'),/Página 2/);await page.getByRole('button',{name:'Cerrar',exact:true}).click();
+  await page.setViewportSize({width:390,height:844});await page.screenshot({path:'test-results/movil.png',fullPage:true});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,'sin desborde horizontal a 390 px');
+  for(const width of [320,768]){await page.setViewportSize({width,height:844});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,'sin desborde a '+width+' px');}
+  assert.deepEqual(errors,[],'sin errores JavaScript');assert.deepEqual(failedResources,[],'todos los recursos cargan');
+  console.log('✓ Guardado y continuación, regreso a viñetas, pausa, sonido, historieta original y pantalla angosta.');
+} catch(error) {
+  if(page)await page.screenshot({path:'test-results/fallo.png',fullPage:true}).catch(()=>{});
+  console.error(serverLog);throw error;
+} finally {await browser?.close();server.kill();}

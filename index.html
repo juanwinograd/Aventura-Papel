@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f8f5ed">
+  <meta name="description" content="Tres amigos, once poderes y una aventura entre viñetas. Entrá en la historieta y ayudá a detener el apocalipsis Vicente.">
+  <title>El apocalipsis Vicente · Una aventura de papel</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="stylesheet" href="src/style.css">
+</head>
+<body>
+  <div class="paper-grain" aria-hidden="true"></div>
+  <div class="page">
+    <header class="masthead">
+      <a class="wordmark" href="./" aria-label="El apocalipsis Vicente, inicio"><span class="logo-star">✳</span> AVENTURA EN PAPEL</a>
+      <div class="header-actions"><span class="edition">EDICIÓN JUGABLE · Nº 01</span><button id="sound" class="icon-button" aria-label="Activar sonido" aria-pressed="false">♪ <span>Sonido apagado</span></button><button id="help" class="icon-button" aria-label="Ver controles">?</button></div>
+    </header>
+    <main>
+      <div class="title-row"><div><p class="eyebrow">DE LAS HOJAS DE UNA HISTORIETA A TU NAVEGADOR</p><h1>El apocalipsis <span>Vicente<svg viewBox="0 0 230 14" aria-hidden="true"><path d="M3 9 Q70 1 226 6 M12 13 Q100 5 210 11"/></svg></span></h1></div><div class="hand-note">¡El mundo necesita<br>a estos tres! <span>↙</span></div></div>
+      <div class="adventure-layout">
+        <section class="comic-column" aria-label="La aventura">
+          <div class="chapter-bar"><div><span id="chapter-number" class="chapter-number">01</span><span id="chapter-name">El cuartel</span></div><button id="chapters" class="text-button">Ver viñetas <span>▦</span></button></div>
+          <div id="stage" class="stage">
+            <canvas id="world" width="960" height="540" tabindex="0" aria-label="Aventura interactiva. Moverse con las flechas, cambiar de personaje con 1, 2 o 3. Abrir ayuda para todos los controles."></canvas>
+            <div id="home" class="home-overlay"><div class="home-copy"><span class="sticker">UNA AVENTURA DIBUJADA A MANO</span><h2>Una gran aventura.<br>Tres pequeños héroes.</h2><p>Algo enorme, rosa y bastante revoltoso está absorbiendo el mundo. Y sí… ¡es Vicente!</p><p class="home-small">Cambiá de personaje, combiná sus poderes y encontrá la solución entre las viñetas.</p><button id="begin" class="primary-button">¡Entrar en la historieta! <span>→</span></button><button id="continue" class="text-button" hidden>Continuar mi aventura ↗</button><p class="keyboard-note">⌨ Para jugar con teclado y mouse</p></div><span class="corner-note">Psst… hay una viñeta secreta.</span></div>
+            <div id="bubble" class="bubble" role="dialog" aria-labelledby="speaker" hidden><span id="speaker"></span><p id="speech"></p><button id="advance" class="text-button">Seguir → <kbd>E</kbd></button></div>
+            <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+            <div id="interaction" class="interaction" hidden><kbd>E</kbd><span></span></div>
+            <div id="scene-flash" class="scene-flash" aria-hidden="true"></div>
+          </div>
+          <div class="under-panel"><span id="health" aria-label="3 oportunidades">♡ ♡ ♡</span><span id="save-status">Tu progreso se guarda en este navegador</span><span class="page-label">HECHO DE TRAZOS Y SUPERPODERES</span></div>
+          <section id="mission" class="mission" aria-label="Objetivo actual"><span class="mission-icon">↗</span><div><p class="eyebrow">LA MISIÓN</p><p id="objective">Detener el apocalipsis… y que todo termine en una fiesta.</p></div><button id="hint" class="hint-button">Una pista <span>✧</span></button></section>
+          <div class="keyboard-strip"><span><kbd>↑</kbd><kbd>←</kbd><kbd>↓</kbd><kbd>→</kbd> Moverte</span><span><kbd>E</kbd> Interactuar</span><span><kbd>Z</kbd><kbd>X</kbd><kbd>C</kbd><kbd>V</kbd> Poderes</span><span><kbd>Esc</kbd> Pausa</span></div>
+        </section>
+        <aside class="crew" aria-label="Personajes y poderes"><div class="crew-heading"><h2>Tu equipo</h2><span>CAMBIÁ CON 1 · 2 · 3</span></div><div id="characters"></div><div class="powers-heading"><span>PODERES DE <strong id="power-owner">VICENTE</strong></span><span>↙ probalos todos</span></div><div id="powers"></div><button id="interact-button" class="interact-button" disabled><kbd>E</kbd> Interactuar <span>↵</span></button><div class="secret-note"><span class="little-star">✧</span><div><strong>Los márgenes esconden cosas…</strong><p>Marcas encontradas <span id="marks">○ ○ ○</span></p></div></div></aside>
+      </div>
+      <footer><span>Una historieta original. Un mundo por descubrir.</span><button id="sketchbook" class="text-button">Abrir la historieta ↗</button><span class="footer-number">01 / AVENTURA EN PAPEL</span></footer>
+    </main>
+  </div>
+  <dialog id="modal"><div class="modal-top"><span class="eyebrow" id="modal-eyebrow">CUADERNO DE AVENTURA</span><button id="close-modal" class="icon-button" aria-label="Cerrar">×</button></div><div id="modal-content"></div></dialog>
+  <script type="module" src="src/app.js"></script>
+</body>
+</html>
