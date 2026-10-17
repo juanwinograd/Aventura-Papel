@@ -85,6 +85,8 @@ Para publicar una actualización, validar los cambios e incorporarlos a `main`. 
 
 La dirección pública es **https://juanwinograd.github.io/Aventura-Papel/**. Si se usa un fork o se cambia el nombre del repositorio, hay que actualizar este enlace. Los recursos del juego usan rutas relativas para funcionar bajo la carpeta del proyecto.
 
+Al compartir el enlace del juego, las etiquetas Open Graph de `index.html` ofrecen título, descripción y una portada JPEG de 1200 × 630 en `assets/compartir-v1.jpg`, disponibles sin JavaScript. La imagen usa una URL pública absoluta. Al cambiar la portada, conviene usar un nombre nuevo y actualizar las etiquetas, porque WhatsApp puede conservar vistas previas en caché.
+
 ## Validación
 
 ```sh
