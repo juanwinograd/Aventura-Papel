@@ -188,7 +188,6 @@ export class Illustrator {
       this.line(laser.x,laser.top-25,laser.x,laser.bottom,hidden?'#e19aa7':'#e54165',hidden?2:5);
       this.line(laser.x-4,laser.top-25,laser.x-4,laser.bottom,hidden?'#efced4':'#f2a0b0',1.5);
       for(const y of [laser.top-25,laser.bottom])this.box(laser.x-11,y-6,22,12,'#eadfcf','#766b5d',2);
-      this.text(hidden?'Invisible: pasá':'Láser: X de Fabrizio',laser.x-15,489,17,hidden?'#668a42':'#b33f61','right');
     } else if(theme==='lab') {
       if(!drawing){
       this.box(66,112,384,108,'#eaf0e6','#9ea99b',2);this.text('LABORATORIO DE TORMENTAS',257,145,26,'#5b786b','center');
@@ -264,7 +263,7 @@ export class Illustrator {
       else {this.box(x-16,y-39,32,31,'#b5cddb','#7797a3',2);this.box(x-8,y-47,16,11,'#b5cddb','#7797a3',2);this.text('✧',x,y-16,21,'#7797a3','center');}
     } else if(o.type==='scanner') {
       this.line(x,y-10,x,y-50,'#b9a38a',3);this.path([[x-30,y-52],[x-10,y-68],[x+10,y-68],[x+30,y-52],[x+10,y-40],[x-10,y-40]],'#9f8878',2,done?'#e1eccd':'#f5ebd9',true);this.circle(x,y-54,8,done?'#92b169':'#a78b6c',2,done?'#a4c37d':'#b79c79');if(done)this.text('✓',x,y-85,26,'#81a04f','center');
-    } else if(o.type==='target') {this.circle(x,y-29,39,done?'#a3b786':'#955c50',2,PAPER);this.circle(x,y-28,27,'#b37758',3,'#fff6dc');this.circle(x,y-28,17,'#d35f65',4);this.circle(x,y-28,6,'#d35f65',2,'#d35f65');this.text(done?'✓':'BLANCO · C',x,y+28,done?26:18,done?'#7f9e4d':'#965349','center');}
+    } else if(o.type==='target') {this.circle(x,y-29,39,done?'#a3b786':'#955c50',2,PAPER);this.circle(x,y-28,27,'#b37758',3,'#fff6dc');this.circle(x,y-28,17,'#d35f65',4);this.circle(x,y-28,6,'#d35f65',2,'#d35f65');if(done)this.text('✓',x,y+28,26,'#7f9e4d','center');}
     else if(o.type==='slot') {this.box(x-34,y-52,68,50,done?'#e3edcc':'#eee0ca','#a89373',2);this.box(x-16,y-38,32,17,done?'#b0c985':'#bcaa8c','#a89373',2);this.text(done?'✓':'◇',x,y-66,24,done?'#7f9e4d':'#a89373','center');}
     else if(o.type==='plate') {this.path([[x-36,y-8],[x+24,y-14],[x+37,y],[x-24,y+7]],'#9a927f',2,done?'#b9d189':'#ddd6c5',true);if(done)this.gift(x,y-6,.8);}
     else if(o.type==='antenna') {this.line(x,y,x,y-70,'#477b78',5);this.path(done?[[x-42,y-82],[x,y-50],[x+42,y-82]]:[[x-13,y-84],[x,y-50],[x+13,y-84]],'#3d9b9c',5);this.circle(x,y-54,5,'#558b89',2,'#f0d078');this.text(done?'¡Desplegada!':'ANTENA · X',x,y+27,19,'#417b79','center');}

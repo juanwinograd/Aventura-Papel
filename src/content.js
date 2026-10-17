@@ -30,7 +30,7 @@ export const SCENES = [
     {id:'eye',type:'scanner',name:'Ojo vigilante',x:530,y:400,flag:'street_sneak'},
     {id:'target',type:'target',name:'Blanco del cerrojo',x:680,y:270,flag:'street_target'},
     {id:'slot',type:'slot',name:'Mecanismo de salida',x:800,y:415,flag:'street_piece'},
-    {id:'anciano',type:'npc',name:'Ancianito',character:'anciano',x:155,y:280,dialog:[['Ancianito','Ese asistente de Fusi no para de molestar. Vicente puede encerrarlo en un prisma con Z. Después, Fabrizio puede cruzar el láser si se vuelve invisible con X.']]},
+    {id:'anciano',type:'npc',name:'Ancianito',character:'anciano',x:155,y:280,dialog:[['Ancianito','Ese asistente de Fusi no para de molestar. Vicente puede encerrarlo en un prisma con Z.'],['Ancianito','Fabrizio puede cruzar el láser si se vuelve invisible con X. Del otro lado, sus picos activan el blanco del cerrojo con C.']]},
   ] },
   { title:'El laboratorio de tormentas', subtitle:'Una solución del tamaño de una chispa.', caption:'Una pared, un pasadizo y un poquito de mal tiempo.', theme:'lab', requires:['lab_power','lab_storm','lab_escort'], objective:'Encendé el laboratorio y ayudá al Ancianito a cruzar.', hint:'Luca entra por el pasadizo con V. Usá Z cerca de la consola y X para desplegar la antena con una tormenta. Acercate al Ancianito y mantené C: el campo lo protege mientras cruza.', mark:{x:95,y:245}, objects:[
     {id:'switch',type:'electric',name:'Consola del pasadizo',x:600,y:340,flag:'lab_power'},
