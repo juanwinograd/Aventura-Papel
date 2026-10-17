@@ -8,11 +8,11 @@ Lámina conceptual: [propuesta-visual.png](propuesta-visual.png). Incluye nuevas
 
 Aventura 2D para navegador, de un jugador, pensada para los 9 años. Se avanza entre pantallas que funcionan como viñetas de historieta. Exploración y acertijos tienen prioridad sobre peleas y conversaciones. Duración objetivo: 10–15 minutos para el recorrido principal; el secreto agrega tiempo opcional.
 
-Se puede cambiar entre Vicente, Fabrizio y Luca durante la aventura. Todos sus poderes estarán disponibles y tendrán una oportunidad de uso. Los demás personajes son NPC. Las peleas son cómicas y perder devuelve al último punto de control.
+Se puede cambiar entre Vicente, Fabrizio y Luca durante la aventura. Todos sus poderes estarán disponibles y tendrán una oportunidad de uso. Gaspar se desbloquea al reunir las tres estrellas y entrar al nivel secreto; queda disponible para toda la aventura, también al recargar. Los demás personajes son NPC. Las peleas son cómicas y perder devuelve al último punto de control.
 
 ## Fuentes y adaptación narrativa
 
-Referencias: `historieta/01.jpg` a `10.jpg` para la aventura; `11.jpg` y `12.jpg` para el glosario. Conservar las imágenes originales sin modificaciones.
+Referencias: `historieta/01_Pagina.jpg` a `10_Pagina.jpg` para la aventura; `11_Pagina.jpg` y `12_Pagina.jpg` para el glosario. `Gaspar.jpg` define al nuevo personaje y `00_Tapa.jpg` es la tapa. El lector incluye la tapa y las doce páginas actualizadas. Conservar las imágenes originales sin modificaciones.
 
 Ideas tomadas de las páginas: un meteoro desencadena la transformación de Vicente; la masa rosa absorbe todo; Luca llega a convertirse en monstruo; aparecen máquinas, trajes y fenómenos temporales; rescatar las piedras y las esencias permite recuperar a los personajes; Sebastián participa en la solución mediante una fusión; el mundo se salva y termina con una fiesta.
 
@@ -24,8 +24,9 @@ Fusi es el villano del glosario. En esta versión intenta aprovechar el caos con
 
 - Vicente: trazo rosa, cabeza ovalada y rasgo rizado vertical del original. No tiene piernas ni pies: flota, tanto quieto como al desplazarse.
 - Fabrizio: verde claro y cara redonda sonriente. Tiene exactamente un resorte de pelo, un resorte como única pierna y dos resortes como brazos. El pelo no son dos cuernos y la pierna no se bifurca en dos. Los cuatro resortes deben reconocerse como espirales, no solo como líneas onduladas. Se desplaza comprimiendo y estirando su única pierna de resorte. No convertirlo en una figura humana convencional.
-- Luca: celeste, cabeza de contorno circular y cuerpo de palitos. Tiene un único pelo corto doblado sobre la cabeza, como en el glosario (`historieta/11.jpg`): un trazo que se dobla hacia un lado, sin rulos, espirales ni vueltas cerradas. No tiene piernas ni pies: flota, también cuando se hace pequeño. Mantener este pelo en todas sus poses.
-- Ancianito: da pistas sobre las esencias y acompaña el cierre.
+- Luca: celeste, cabeza de contorno circular y cuerpo de palitos. Tiene un único pelo corto doblado sobre la cabeza, como en el glosario (`historieta/11_Pagina.jpg`): un trazo que se dobla hacia un lado, sin rulos, espirales ni vueltas cerradas. No tiene piernas ni pies: flota, también cuando se hace pequeño. Mantener este pelo en todas sus poses.
+- Gaspar: cara celeste redonda sonriente y extremidades radiales, conservando el dibujo de `historieta/Gaspar.jpg`. Tiene brazo elástico, superpuño, teletransporte y Papapumba.
+- Ancianito: pequeña barba clara y bastón negro curvo sostenido con la mano, como en la página 12. Da pistas y separa la fusión en el cierre.
 - Reportero: presenta los acontecimientos con noticias breves y cómicas.
 - Sebastián: ayuda en la resolución final.
 - Fusi, asistentes de Fusi y robot asistente: obstáculos narrativos y enemigos de combate ligero, manteniendo el violeta y amarillo del glosario.
@@ -42,25 +43,26 @@ El nombre obligatorio del cuartel en el juego será `e.c.u.c.p.a.e.a.p.s.a`, com
 | 2 | Calle doblada. La masa rosa bloquea una calle; un asistente vigila una pieza de la máquina. | Vicente encierra al guardia en un prisma. Fabrizio pasa invisible y lanza picos contra un blanco. Vicente convierte la pieza en regalo, la transporta y la abre en el mecanismo de salida. |
 | 3 | Laboratorio de tormentas. Hay un circuito sin energía, una antena plegada y un conducto demasiado chico. | Luca se encoge para recorrer el conducto, restaura un interruptor y vuelve a crecer. Una tormenta despliega la antena y modifica el recorrido. Su campo de fuerza permite que un NPC cruce una descarga; Luca permanece quieto mientras lo sostiene. |
 | 4 | Borde del apocalipsis. Buscar las piedras que abren el acceso al corazón de Vicente. | Vicente guarda un enemigo en un regalo y lo coloca sobre un interruptor de peso. Una emergencia guiada enseña su teletransporte a un punto seguro aleatorio. Fabrizio refleja un ataque del robot para abrir el paso. |
-| 5 | Corazón de papel. Recuperar tres esencias en un acertijo final con los tres protagonistas. | Alternar electricidad, protección y transporte de regalos. Sebastián ayuda a reunir las esencias. Vicente recupera el control y la masa rosa se retrae. Final mediante acertijo, con amenazas breves y evitables. |
-| 6 | Regreso al cuartel. Reencuentro y fiesta final. | Fabrizio se entierra y aparecen luces de fiesta. Reportero cuenta el rescate. Créditos y opción de seguir explorando. |
+| 5 | La fusión de Sebastián, adaptada de la página 9. | Luca enciende la consola y Vicente entrega la esencia en un regalo. Al hablar con Sebastián, camina hacia la masa y se fusiona. Luego hay que hablar con el Ancianito para separar a ambos y reunir a Vicente con su cuerpo. |
+| 6 | Regreso al cuartel. Reencuentro y fiesta final. | Fabrizio se entierra brevemente y la fiesta llena toda la pantalla durante seis segundos. Todos los personajes del cierre bailan. Reportero cuenta el rescate. Créditos y opción de seguir explorando. |
 
 Distribución orientativa: 2 minutos en el cuartel, 2 en la calle, 3 en el laboratorio, 2 en el borde, 3 en el corazón y 1 en el cierre. Ajustar con una partida real; no imponer un reloj al jugador.
 
 ## Nivel secreto propuesto
 
-Nombre: **La viñeta que no estaba**. Buscar tres marcas dibujadas en los márgenes de las pantallas 2, 3 y 4; la interfaz indica cuántas se encontraron sin revelar todas las ubicaciones. Se pueden conseguir sin acciones irreversibles. Al volver al cuartel, las tres marcas abren una viñeta escondida detrás de un dibujo.
+Nombre: **La viñeta de Gaspar**. Buscar tres marcas dibujadas en los márgenes de las pantallas 2, 3 y 4; la interfaz indica cuántas se encontraron sin revelar todas las ubicaciones. Se pueden conseguir sin acciones irreversibles. Al volver al cuartel, las tres marcas abren una viñeta escondida detrás de un dibujo.
 
-La viñeta contiene una pequeña sala de juegos con acertijos libres y efectos de fiesta. Premia explorar y usar los poderes; no bloquea el final principal. Una vez descubierta, queda accesible desde la selección de viñetas. Se podrá volver a las pantallas previas para completar la búsqueda.
+Entrar desbloquea a Gaspar de forma permanente. Antes de cruzar el margen debe alcanzar una llave distante con su brazo elástico (Z), que abre un puente. Dos asistentes pueden vencerse con superpuño (X) o Papapumba (V). El teletransporte (C) solo alcanza lugares accesibles y seguros: no evita el puente cerrado. Los asistentes salen volando con efectos cómicos. Los enemigos de acertijos anteriores solo quedan aturdidos para que puedan seguir usándose como regalos. No bloquea el final principal. Una vez descubierta, queda accesible desde la selección de viñetas. Se podrá volver a las pantallas previas para completar la búsqueda.
 
 ## Reglas compartidas
 
-- Solo el personaje seleccionado se controla directamente. Los otros dos quedan representados en las pestañas de la historieta; no hay inteligencia de compañeros que pueda atascarse.
+- Solo el personaje seleccionado se controla directamente. Los otros héroes quedan representados en las pestañas de la historieta; no hay inteligencia de compañeros que pueda atascarse.
 - Cambiar de personaje mantiene la posición y pausa efectos incompatibles. En conductos pequeños, Luca debe salir antes de cambiar. Mientras se transporta un regalo, se conserva al cambiar.
 - Recarga independiente por poder, visible con icono y cuenta breve. Sin recurso consumible de energía. La recarga continúa al cambiar de personaje, sin reiniciarse ni desaparecer.
 - Ningún acertijo depende del teletransporte aleatorio. Solo elige entre posiciones seguras de la pantalla actual que ya sean accesibles y no evita puertas cerradas. Si no existe una posición segura diferente, no se consume la recarga.
 - Los objetos esenciales no se pueden perder: reaparecen junto a su acertijo al reiniciar. Los regalos se abren con Interactuar y devuelven su contenido. No se pueden regalar NPC necesarios, salidas ni elementos estructurales.
 - Los interruptores de peso aceptan un regalo con objeto o con enemigo; ninguna solución requiere atacar personajes amistosos.
+- La masa rosa es mayor en la viñeta 5 que en la 4, conserva el trazo de marcador y no crece con el tiempo. Tocarla absorbe al personaje y lo devuelve inmediatamente al punto de control, incluso con escudo o invulnerabilidad. Las estrellas se dibujan por encima de los fondos y efectos.
 - Sin límite de tiempo global, sangre ni daño permanente. Tres golpes provocan un efecto cómico y regreso al punto de control con las soluciones ya completadas conservadas.
 - Punto de control al entrar en cada pantalla. Reiniciar la pantalla restaura objetos y enemigos de los acertijos pendientes. No reiniciar un acertijo ya resuelto de forma que bloquee el recorrido.
 - Guardado local del progreso: pantalla, acertijos resueltos y marcas secretas. Continuar y Nueva aventura en el menú. Sin cuentas ni servidor; el guardado depende de ese navegador.
@@ -77,7 +79,11 @@ Las duraciones y recargas siguientes son propuestas de equilibrio; las funciones
 | Fabrizio | Cubo | Barrera delante del personaje durante 4 s; devuelve proyectiles al emisor. Un cubo activo. | 5 s |
 | Fabrizio | Invisibilidad | 5 s sin ser detectado; puede atacar sin reaparecer. No permite atravesar paredes y no protege de peligros del escenario. | 8 s después del efecto |
 | Fabrizio | Picos | Proyectil de picos con alcance corto; aturde enemigos y activa blancos. | 2 s |
-| Fabrizio | Fiesta subterránea | Se entierra y aparecen luces y sonidos durante 2 s; efecto decorativo, sin requisito de precisión. No concede invulnerabilidad. | 5 s |
+| Fabrizio | Fiesta subterránea | Se entierra durante 1,4 s y la fiesta ocupa toda la pantalla durante 6 s. En el cierre, los personajes bailan; efecto decorativo, sin requisito de precisión. No concede invulnerabilidad. | 5 s |
+| Gaspar | Brazo elástico | Alcanza la llave lejana hasta 480 unidades o acerca piezas. | 3 s |
+| Gaspar | Superpuño | Golpea enemigos cercanos, hasta 135 unidades. | 3 s |
+| Gaspar | Teletransportarse | Traslado aleatorio seguro dentro del área accesible. | 8 s |
+| Gaspar | Papapumba | Papa explosiva que vuela durante 0,8 s y afecta enemigos cercanos a su explosión. | 5 s |
 | Luca | Rayo eléctrico | Aturde a un enemigo o activa una máquina señalizada. | 2 s |
 | Luca | Tormenta | Afecta toda la pantalla durante 3 s; activa elementos de tormenta y cambia partes señalizadas del escenario. No destruye objetos esenciales ni lastima NPC. | 10 s |
 | Luca | Campo de fuerza | Protege a Luca y a quienes estén dentro durante un máximo de 5 s; permanece inmóvil. Cancelable para evitar quedar atrapado. | 6 s después del efecto |
@@ -90,7 +96,7 @@ Enemigos dentro de regalos quedan inmovilizados hasta abrirlos; un prisma es una
 Primera versión para navegador de computadora, con teclado; no se promete soporte táctil ni multijugador en este alcance.
 
 - Flechas o WASD: desplazarse en dos direcciones dentro de la viñeta, sin saltos de plataformas.
-- 1, 2, 3: seleccionar Vicente, Fabrizio o Luca; también se puede pulsar su retrato.
+- 1, 2, 3: seleccionar Vicente, Fabrizio o Luca; 4 selecciona a Gaspar después de desbloquearlo. También se puede pulsar su retrato.
 - Z, X, C, V: usar los poderes del personaje seleccionado, en el orden de la tabla. Botones visibles y pulsables como alternativa. Vicente no usa V.
 - E o Espacio: hablar, recoger, dejar y abrir regalos; el texto contextual indica la acción exacta.
 - Los ataques se orientan hacia la última dirección de movimiento; se muestra el objetivo cercano cuando corresponda. Los rayos de máquinas priorizan el mecanismo señalado.
@@ -101,9 +107,9 @@ Primera versión para navegador de computadora, con teclado; no se promete sopor
 
 Fondo de papel claro con textura suave, bordes negros irregulares y figuras simples de marcador. Conservar los colores y las siluetas del glosario; crear poses nuevas sin anatomía realista, sombreado volumétrico ni aspecto de personajes genéricos. Vicente rosa intenso, Fabrizio verde claro y Luca celeste. El apocalipsis usa rosa fluorescente con movimiento lento y expresiones cómicas.
 
-El acabado de la versión actual usa fondos ilustrados del cuartel, la calle y el laboratorio basados en la lámina aprobada. Los personajes, objetos y poderes se dibujan con contornos irregulares, presión de marcador, rellenos a rayitas y grano de papel. La irregularidad de cada marca se conserva entre fotogramas para evitar parpadeo. Los cambios son de presentación: las posiciones, reglas y guardados de los acertijos se mantienen.
+El acabado de la versión actual usa fondos ilustrados del cuartel, la calle, el laboratorio, el borde y el desenlace, además de una masa rosa transparente. Todos siguen el estilo de la lámina aprobada. Los personajes, objetos y poderes se dibujan con contornos irregulares, presión de marcador, rellenos a rayitas y grano de papel. La irregularidad de cada marca se conserva entre fotogramas para evitar parpadeo. Las partidas de la versión anterior se conservan, incluidas las victorias; una viñeta secreta ya abierta también desbloquea a Gaspar.
 
-La pantalla activa es una viñeta grande. Al cruzar una salida se revela la siguiente con una transición corta de página y alguna flecha dibujada. El cuartel incorpora carteles, consola, mapas y objetos de aspecto dibujado a mano; esos elementos son diseños nuevos pendientes de revisión.
+La pantalla activa es una viñeta grande. Al cruzar una salida se revela la siguiente con una transición corta de página y alguna flecha dibujada. El cuartel incorpora carteles, consola, mapas y objetos de aspecto dibujado a mano; esos elementos se basan en la propuesta visual aprobada.
 
 Animaciones pequeñas: 2–4 poses de desplazamiento y acciones breves de poderes. Vicente y Luca flotan con una oscilación suave; nunca se les dibujan piernas, pies ni pasos. Fabrizio se desplaza con compresión y extensión de su única pierna de resorte; pelo y dos brazos también son resortes. Flotar es su forma de desplazarse y no permite evitar paredes, acertijos ni peligros. Mantener el trazo imperfecto en las nuevas poses, sin deformar las imágenes originales. Interfaz con texto limpio y contraste suficiente; no depender solo del color para distinguir personajes o acciones.
 
@@ -115,12 +121,12 @@ Antes de producir las animaciones se revisará una lámina conceptual de los pro
 
 1. Se puede completar la aventura de principio a fin en el navegador, sin instalación ni cuenta.
 2. Cambiar entre los tres personajes es necesario y comprensible; ningún acertijo queda bloqueado por el personaje elegido.
-3. Los 11 poderes se pueden usar y cada uno tiene una oportunidad clara de demostración, incluida la fiesta decorativa.
+3. Los 15 poderes se pueden usar al desbloquear a Gaspar; cada uno tiene una oportunidad clara de demostración, incluida la fiesta decorativa.
 4. El teletransporte siempre lleva a un lugar seguro y no resuelve por azar un acertijo obligatorio.
 5. Los regalos conservan su contenido; abrirlos, moverlos y reiniciar no permite perder piezas esenciales.
 6. El campo de fuerza protege al NPC y la invisibilidad permite atacar sin ser detectado durante su duración.
 7. Perder vuelve al punto de control y Continuar recupera el progreso local después de recargar.
-8. Se puede descubrir y jugar el nivel secreto, incluso regresando después del final.
+8. Se puede descubrir y jugar el nivel secreto, incluso regresando después del final. Gaspar queda disponible en todas las viñetas y conserva su desbloqueo al recargar.
 9. Las figuras y los escenarios recuerdan a la historieta y la familia revisa la propuesta visual antes de animar.
 10. La aventura da espacio a explorar, usa pistas opcionales y termina con rescate y fiesta.
 11. Vicente y Luca flotan sin piernas en todas sus poses. Luca tiene un solo pelo doblado, sin rulos ni espirales. Fabrizio conserva exactamente un resorte de pelo, uno de pierna y dos de brazos.
@@ -131,6 +137,7 @@ Antes de producir las animaciones se revisará una lámina conceptual de los pro
 - Incorporado por indicación de la familia: Vicente y Luca sin piernas, flotando; Fabrizio con un resorte de pelo, uno de pierna y dos de brazos.
 - Corrección del pelo de Luca verificada con el glosario: un único pelo doblado, sin rulo.
 - Aprobado: lámina corregida de poses y cuartel, incluido el pelo doblado de Luca.
+- Incorporadas las mejoras pedidas: viñetas 4 y 5 ilustradas, masa letal por contacto y sin reloj, fusión de Sebastián seguida de la separación del Ancianito, fiesta completa con baile, Gaspar permanente y nuevo secreto, estrellas visibles y lector con tapa e imágenes nuevas.
 - Controles y tiempos propuestos: ajustar después de jugar.
 
 Siguiente paso de revisión: jugar la primera versión en familia y ajustar ritmo, pistas, tiempos de recarga y dificultad a partir de esa partida. Los resultados de las pruebas técnicas se informan por separado.

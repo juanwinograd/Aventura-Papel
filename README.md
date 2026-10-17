@@ -1,6 +1,6 @@
 # El apocalipsis Vicente
 
-Una aventura 2D para navegador basada en la historieta de la carpeta [`historieta/`](historieta/). Vicente, Fabrizio y Luca exploran viñetas, combinan once poderes y rescatan a Vicente de su propio apocalipsis. Incluye seis pantallas principales, una viñeta secreta y la historieta original para leer dentro del juego.
+Una aventura 2D para navegador basada en la historieta de la carpeta [`historieta/`](historieta/). Vicente, Fabrizio y Luca exploran viñetas, combinan once poderes y rescatan a Vicente de su propio apocalipsis. Incluye seis pantallas principales, una viñeta secreta que desbloquea a Gaspar y la historieta original con tapa para leer dentro del juego.
 
 ## Jugar
 
@@ -22,7 +22,11 @@ Un meteoro convierte a Vicente en una enorme masa rosa que absorbe todo. Una peq
 | Fabrizio | Crear cubos que reflejan ataques, volverse invisible, lanzar picos y armar una fiesta subterránea. |
 | Luca | Invocar rayos eléctricos, crear tormentas, proteger con un campo de fuerza y hacerse chiquito para entrar en pasadizos. |
 
-Podés cambiar entre los tres durante la aventura. Los poderes se recargan solos; al perder volvés al punto de control, conservando los acertijos resueltos. Y si explorás con atención, quizás encuentres una viñeta que no estaba…
+Podés cambiar entre los tres durante la aventura. Al reunir las tres estrellas y entrar al nivel secreto, desbloqueás a **Gaspar** para todas las viñetas: brazo elástico, superpuño, teletransporte y **Papapumba**, una papa explosiva. Su desafío consiste en alcanzar una llave lejana y vencer a dos asistentes.
+
+Los poderes se recargan solos; al perder volvés al punto de control, conservando los acertijos resueltos. La masa rosa crece al avanzar la historia, sin reloj: tocarla devuelve inmediatamente al punto de control, incluso usando un escudo.
+
+En el desenlace, Sebastián camina hacia la masa y se fusiona; después hay que hablar con el Ancianito para que los separe y reúna a Vicente con su cuerpo. La fiesta de Fabrizio ilumina toda la pantalla y hace bailar a los personajes del cierre.
 
 ## Jugar en desarrollo
 
@@ -41,7 +45,7 @@ También se puede generar una edición descargable del juego en un solo archivo:
 npm run build
 ```
 
-El resultado es `dist/El-apocalipsis-Vicente.html`, con código, dibujos, estilos, fuente y efectos incluidos. Se puede descargar y abrir en un navegador de escritorio. Esta edición contiene el juego; el lector de las 12 páginas originales está disponible en la versión del repositorio para evitar que la descarga supere los 70 MB.
+El resultado es `dist/El-apocalipsis-Vicente.html`, con código, dibujos, estilos, fuente y efectos incluidos. Se puede descargar y abrir en un navegador de escritorio. Esta edición contiene el juego; el lector de la tapa y las 12 páginas originales está disponible en la versión del repositorio para mantener pequeña la descarga.
 
 En el entorno de Codex, si el caché habitual de npm no es escribible:
 
@@ -54,7 +58,7 @@ npm ci --cache /workspace/.cache/npm --ignore-scripts --no-audit --no-fund
 | Acción | Control |
 | --- | --- |
 | Moverse | Flechas, WASD o clic en el suelo |
-| Elegir personaje | 1 Vicente, 2 Fabrizio, 3 Luca; también sus tarjetas |
+| Elegir personaje | 1 Vicente, 2 Fabrizio, 3 Luca, 4 Gaspar al desbloquearlo; también sus tarjetas |
 | Poderes | Z, X, C y V, o sus botones en el panel |
 | Hablar, recoger, colocar o abrir regalos, avanzar | E o Espacio |
 | Pausa y controles | Escape o botón de ayuda |
@@ -91,7 +95,7 @@ npm run test:download
 
 - `check`: verifica la sintaxis de los módulos y del servidor.
 - `test`: pruebas del motor con el runner de Node; regalos y contenido, poderes, recargas, movimiento restringido, teletransporte seguro, protección de NPC, puntos de control, guardado, aventura completa y nivel secreto.
-- `test:browser`: inicia su propio servidor en el puerto 3107 y recorre el juego en Chromium con clics y teclas reales. Comprueba los once poderes, el final, las tres marcas, el nivel secreto, la continuación del guardado, pausa, sonido y lectura de la historieta. También verifica los fondos ilustrados, la estabilidad del trazo entre fotogramas idénticos, las rutas bajo `/Aventura-Papel/` y la ausencia de desborde horizontal a 320, 390 y 768 px. Guarda capturas en `test-results/`, una carpeta ignorada por Git.
+- `test:browser`: inicia su propio servidor en el puerto 3107 y recorre el juego en Chromium con clics y teclas reales. Comprueba los quince poderes, el final con fusión y separación, las tres marcas, el nivel secreto de Gaspar, la continuación del guardado, pausa, sonido y lectura de la tapa y las doce páginas de la historieta. También verifica los fondos ilustrados, la estabilidad del trazo entre fotogramas idénticos, las rutas bajo `/Aventura-Papel/` y la ausencia de desborde horizontal a 320, 390 y 768 px. Guarda capturas en `test-results/`, una carpeta ignorada por Git.
 - `test:download`: verifica el HTML generado, el movimiento, un poder, el guardado y la continuación. Sirve el archivo en el puerto 3108, corta la conexión después de la carga y comprueba que no se pidan recursos externos. La política del Chromium administrado impide navegar a `file://`; la apertura directa desde el sistema de archivos no pudo verificarse aquí.
 
 Las pruebas del navegador usan `/usr/bin/chromium` si existe, o el navegador instalado por Playwright. En otra máquina, ejecutar `npx playwright install chromium` antes de las pruebas. Se puede indicar un ejecutable con `CHROMIUM_PATH` y cambiar el puerto de prueba con `TEST_PORT`.
@@ -104,11 +108,11 @@ Las pruebas del navegador usan `/usr/bin/chromium` si existe, o el navegador ins
 - `src/content.js`: pantallas, diálogos, acertijos y poderes.
 - `src/art.js`: personajes y escenarios dibujados en Canvas, conservando las formas aprobadas.
 - `src/sketch.js`: contornos de lápiz, rellenos a rayitas y grano de papel; las marcas se reutilizan para que el trazo permanezca estable al animarse.
-- `assets/illustrations/`: fondos del cuartel, la calle y el laboratorio, generados tomando la lámina aprobada como referencia visual. La fiesta reutiliza el cuartel.
+- `assets/illustrations/`: fondos del cuartel, la calle, el laboratorio, el borde y el desenlace, junto con la masa rosa transparente. Se generaron tomando el arte aprobado como referencia visual. La fiesta reutiliza el cuartel.
 - `src/illustration-files.js`: lista de fondos, compartida por la aplicación y el generador del HTML descargable. El generador incluye las imágenes dentro del archivo para conservar el funcionamiento sin conexión.
-- `src/app.js`: interfaz, controles, guardado y lectura de la historieta.
+- `src/app.js`: interfaz, controles, guardado y lectura de la tapa y las doce páginas de la historieta.
 - `src/audio.js`: efectos breves sintetizados con Web Audio.
 
-Vicente y Luca flotan sin piernas. Luca tiene un solo pelo doblado. Fabrizio tiene un resorte de pelo, uno de pierna y dos de brazos. Los dibujos originales no se modifican. La tipografía Patrick Hand está incluida bajo su licencia OFL en `assets/FONT-LICENSE.txt`.
+Vicente y Luca flotan sin piernas. Luca tiene un solo pelo doblado. Fabrizio tiene un resorte de pelo, uno de pierna y dos de brazos. El Ancianito tiene una pequeña barba y sostiene su bastón; Gaspar conserva la cara redonda con extremidades radiales de su dibujo. Las estrellas secretas se dibujan sobre los escenarios y efectos para que sean visibles. Los dibujos originales no se modifican. La tipografía Patrick Hand está incluida bajo su licencia OFL en `assets/FONT-LICENSE.txt`.
 
 Primera versión para una persona en computadora con teclado y mouse. La interfaz se adapta a pantallas angostas, pero no incluye controles táctiles completos ni multijugador. La duración de 10–15 minutos es un objetivo de diseño que debe ajustarse con una partida de la familia; las pruebas automáticas no miden esa experiencia.

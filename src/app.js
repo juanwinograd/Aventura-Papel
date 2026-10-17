@@ -1,5 +1,5 @@
 import { Adventure, distance } from './engine.js';
-import { HEROES, SCENES, SAVE_KEY } from './content.js';
+import { HEROES, SCENES, SAVE_KEY, COMIC_PAGES } from './content.js';
 import { Illustrator } from './art.js';
 import { Soundtrack } from './audio.js';
 import { illustrationsReady } from './illustrations.js';
@@ -7,7 +7,7 @@ import { illustrationsReady } from './illustrations.js';
 const $=s=>document.querySelector(s);
 const world=$('#world'), modal=$('#modal'), audio=new Soundtrack();
 let saved=null,storageAvailable=true;
-try{const raw=localStorage.getItem(SAVE_KEY);if(raw){saved=JSON.parse(raw);if(saved?.version!==1)saved=null;}}catch{storageAvailable=false;}
+try{const raw=localStorage.getItem(SAVE_KEY);if(raw){saved=JSON.parse(raw);if(![1,2].includes(saved?.version))saved=null;}}catch{storageAvailable=false;}
 export let game=new Adventure(saved);
 const art=new Illustrator(world);
 let started=false,keys=new Set(),last=0,toastTimer=0,lastHero=-1,lastScene=-1,uiTick=0,lastDialog='';
@@ -53,12 +53,14 @@ function makeCards(){
   });
 }
 function sync(){
+  document.querySelectorAll('.hero-card').forEach((b,i)=>b.hidden=Boolean(HEROES[i].unlock&&!game.flags[HEROES[i].unlock]));
+  $('#team-shortcuts').textContent=game.flags.gaspar_unlocked?'CAMBIÁ CON 1 · 2 · 3 · 4':'CAMBIÁ CON 1 · 2 · 3';
   if(lastHero!==game.player.hero){
     lastHero=game.player.hero;powers();document.querySelectorAll('.hero-card').forEach((b,i)=>{b.classList.toggle('selected',i===lastHero);b.setAttribute('aria-pressed',String(i===lastHero));b.querySelector('.selected-dot').hidden=i!==lastHero;});
   }
   if(lastScene!==game.scene){lastScene=game.scene;$('#chapter-number').textContent=String(game.scene+1).padStart(2,'0');$('#chapter-name').textContent=game.definition.title;}
   const all=game.definition.requires,remaining=all.filter(f=>!game.flags[f]);
-  const objective=started?(game.scene<5&&remaining.length===0?(game.scene===4?'Las esencias están listas. Andá al corazón de la derecha y pulsá E.':'¡Todo listo! Andá a la puerta de la derecha y pulsá E.'):game.scene===6&&game.complete?'¡La viñeta secreta ya es parte de su historia! Seguí jugando o volvé al cuartel.':game.definition.objective):'Detener el apocalipsis… y que todo termine en una fiesta.';
+  const objective=started?(game.cinematic?(game.cinematic.kind==='fusion'?'Sebastián camina hacia la masa… ¡Fusión!':'El Ancianito los separa y reúne a Vicente con su cuerpo…'):game.scene===4?(game.flags.heart_fusion?'La fusión volvió. Hablá con el Ancianito para separar a Sebastián y Vicente.':game.flags.heart_power&&game.flags.heart_piece?'Las esencias están listas. Hablá con Sebastián para iniciar la fusión.':game.definition.objective):game.scene<4&&remaining.length===0?'¡Todo listo! Rodeá los peligros y andá a la salida de la derecha.':game.scene===6&&game.complete?'¡Gaspar completó su viñeta! Ya podés elegirlo en toda la aventura.':game.definition.objective):'Detener el apocalipsis… y que todo termine en una fiesta.';
   $('#objective').textContent=objective;$('#objective').classList.toggle('hud-complete',started&&game.complete);
   $('#marks').textContent=[1,2,3].map(n=>game.marks.includes(n)?'★':'○').join(' ');
   $('#health').textContent=Array.from({length:3},(_,i)=>i<game.player.health?'♡':'·').join(' ');$('#health').setAttribute('aria-label',`${game.player.health} oportunidades`);
@@ -85,7 +87,7 @@ modal.addEventListener('cancel',event=>{event.preventDefault();closeModal();});
 modal.addEventListener('close',()=>{game.running=started;keys.clear();});
 $('#close-modal').addEventListener('click',closeModal);
 function help(){
-  showModal(`<h2>${started?'Una pausa entre viñetas':'Pequeña guía de superpoderes'}</h2><p>Explorá, hablá con los personajes y combiná poderes. Cada héroe tiene una solución distinta. Las puertas se abren cuando resolvés los acertijos de la viñeta.</p><div class="controls-grid"><div><strong>Moverte</strong><p>Flechas o W A S D.<br>También podés hacer clic en el suelo.</p></div><div><strong>Cambiar de personaje</strong><p>1 Vicente · 2 Fabrizio · 3 Luca.<br>O elegí su tarjeta.</p></div><div><strong>Poderes</strong><p>Z · X · C · V, o sus botones.<br>Mirá al objetivo antes de lanzar.</p></div><div><strong>Interactuar</strong><p>E o Espacio para hablar, recoger regalos y avanzar. Los regalos se abren con E al llevarlos; junto a un mecanismo, E los coloca.</p></div></div><p>Al recibir tres golpes volvés al punto de control. Lo que resolviste queda resuelto. Pedí <b>Una pista</b> cuando quieras. Los poderes se recargan solos, también al cambiar de héroe.</p><label class="volume-control">Volumen <input id="volume" type="range" min="0" max="1" step="0.05" value="${audio.volume}"></label><label class="volume-control"><input id="reduced" type="checkbox" ${art.reduced?'checked':''}> Reducir movimiento</label>${started?'<button id="resume" class="primary-button">Volver a la aventura →</button><button id="restart-screen" class="danger-button">Volver al punto de control</button>':''}<p class="credit-note">Una aventura nacida en una historieta de verdad.</p>`);
+  showModal(`<h2>${started?'Una pausa entre viñetas':'Pequeña guía de superpoderes'}</h2><p>Explorá, hablá con los personajes y combiná poderes. Cada héroe tiene una solución distinta. Las puertas se abren cuando resolvés los acertijos de la viñeta.</p><div class="controls-grid"><div><strong>Moverte</strong><p>Flechas o W A S D.<br>También podés hacer clic en el suelo.</p></div><div><strong>Cambiar de personaje</strong><p>1 Vicente · 2 Fabrizio · 3 Luca${game.flags.gaspar_unlocked?' · 4 Gaspar':''}.<br>O elegí su tarjeta.</p></div><div><strong>Poderes</strong><p>Z · X · C · V, o sus botones.<br>Mirá al objetivo antes de lanzar.</p></div><div><strong>Interactuar</strong><p>E o Espacio para hablar, recoger regalos y avanzar. Los regalos se abren con E al llevarlos; junto a un mecanismo, E los coloca.</p></div></div><p>Al recibir tres golpes volvés al punto de control. <b>La masa rosa te absorbe de inmediato, incluso con un escudo.</b> Crece al avanzar de viñeta, sin reloj. Lo que resolviste queda resuelto. Pedí <b>Una pista</b> cuando quieras. Los poderes se recargan solos, también al cambiar de héroe.</p><label class="volume-control">Volumen <input id="volume" type="range" min="0" max="1" step="0.05" value="${audio.volume}"></label><label class="volume-control"><input id="reduced" type="checkbox" ${art.reduced?'checked':''}> Reducir movimiento</label>${started?'<button id="resume" class="primary-button">Volver a la aventura →</button><button id="restart-screen" class="danger-button">Volver al punto de control</button>':''}<p class="credit-note">Una aventura nacida en una historieta de verdad.</p>`);
   $('#volume').addEventListener('input',e=>audio.volume=Number(e.target.value));$('#reduced').addEventListener('change',e=>art.reduced=e.target.checked);
   $('#resume')?.addEventListener('click',closeModal);$('#restart-screen')?.addEventListener('click',()=>{closeModal();game.enter(game.scene,false);toast('Punto de control restaurado. Lo resuelto sigue resuelto.');});
 }
@@ -98,9 +100,10 @@ function confirmNew(){
   showModal('<h2>¿Una nueva hoja en blanco?</h2><p>Se borrará el progreso guardado de esta aventura, incluidas las marcas secretas. Podés seguir explorando sin empezar de nuevo.</p><button id="confirm-new" class="primary-button">Sí, empezar de nuevo →</button><button id="keep-playing" class="text-button">Conservar mi aventura</button>');
   $('#confirm-new').addEventListener('click',()=>{closeModal();start(true);});$('#keep-playing').addEventListener('click',closeModal);
 }
-let page=1;
+let page=0;
 function sketchbook(){
-  showModal(`<h2>La historieta original</h2><p>De acá salió todo. Dibujos originales, sin cambiar.</p><div class="gallery-nav"><button id="prev-page" ${page===1?'disabled':''}>← Anterior</button><span>Página ${page} de 12</span><button id="next-page" ${page===12?'disabled':''}>Siguiente →</button></div><img class="gallery-image" src="historieta/${String(page).padStart(2,'0')}.jpg" alt="Página ${page} de la historieta original El apocalipsis Vicente">`,'EL CUADERNO DONDE EMPEZÓ LA AVENTURA');
+  const current=COMIC_PAGES[page];
+  showModal(`<h2>La historieta original</h2><p>De acá salió todo. Tapa y páginas originales, con las imágenes actualizadas.</p><div class="gallery-nav"><button id="prev-page" ${page===0?'disabled':''}>← Anterior</button><span>${current.label} · ${page+1} de ${COMIC_PAGES.length}</span><button id="next-page" ${page===COMIC_PAGES.length-1?'disabled':''}>Siguiente →</button></div><img class="gallery-image" src="historieta/${current.file}" alt="${current.label} de la historieta original El apocalipsis Vicente">`,'EL CUADERNO DONDE EMPEZÓ LA AVENTURA');
   $('#prev-page').addEventListener('click',()=>{page--;sketchbook();});$('#next-page').addEventListener('click',()=>{page++;sketchbook();});
 }
 $('#begin').addEventListener('click',()=>saved?confirmNew():start(true));
@@ -114,9 +117,9 @@ window.addEventListener('keydown',e=>{
   if(e.key==='Escape'&&!modal.open&&started){e.preventDefault();help();return;}
   if(modal.open||!started||['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName))return;
   const key=e.key.toLowerCase();
-  if(['arrowup','arrowdown','arrowleft','arrowright',' ','w','a','s','d','e','z','x','c','v','1','2','3'].includes(key))e.preventDefault();
+  if(['arrowup','arrowdown','arrowleft','arrowright',' ','w','a','s','d','e','z','x','c','v','1','2','3','4'].includes(key))e.preventDefault();
   keys.add(key);if(e.repeat)return;audio.unlock();
-  if(['1','2','3'].includes(key))selectHero(Number(key)-1);
+  if(['1','2','3','4'].includes(key))selectHero(Number(key)-1);
   if(key==='e'||key===' '){game.interact();sync();}
   if(['z','x','c','v'].includes(key)){game.use(['z','x','c','v'].indexOf(key));sync();}
 });

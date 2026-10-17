@@ -16,7 +16,7 @@ try {
   const errors=[],failedResources=[];
   page.on('pageerror',error=>errors.push(error.message));page.on('response',response=>{if(response.status()>=400)failedResources.push(`${response.status()} ${response.url()}`);});
   await page.goto(url);await page.evaluate(async()=>{window.adventureModule=await import('/src/app.js');await window.adventureModule.artworkReady;});
-  assert.equal(await page.evaluate(async()=>(await import('/src/illustrations.js')).illustrations.size),3,'los tres fondos ilustrados están disponibles');
+  assert.equal(await page.evaluate(async()=>(await import('/src/illustrations.js')).illustrations.size),6,'los cinco fondos y la masa ilustrada están disponibles');
   assert.equal(await page.evaluate(async()=>{
     const {Illustrator}=await import('/src/art.js');const canvas=document.createElement('canvas');canvas.width=960;canvas.height=540;
     const illustrator=new Illustrator(canvas);illustrator.reduced=true;const game=window.adventureModule.game;
@@ -25,7 +25,7 @@ try {
   await page.screenshot({path:'test-results/inicio.png',fullPage:true});
   assert.match(await page.title(),/El apocalipsis Vicente/);
   await page.getByRole('button',{name:'¡Entrar en la historieta!'}).click();
-  const state=()=>page.evaluate(async()=>{const{game:g}=await import('/src/app.js');return{scene:g.scene,flags:g.flags,player:g.player,dialog:g.dialog,marks:g.marks,used:g.used,gift:g.gift,small:g.small,shield:g.shield,cooldowns:g.cooldowns,objects:g.objects,complete:g.complete,time:g.time};});
+  const state=()=>page.evaluate(async()=>{const{game:g}=await import('/src/app.js');return{scene:g.scene,flags:g.flags,player:g.player,dialog:g.dialog,marks:g.marks,used:g.used,gift:g.gift,small:g.small,shield:g.shield,cooldowns:g.cooldowns,objects:g.objects,complete:g.complete,time:g.time,party:g.party,cinematic:g.cinematic};});
   async function dismiss(){for(let i=0;i<6&&(await state()).dialog.length;i++)await page.keyboard.press('e');}
   async function walk(x,y){
     await dismiss();const box=await page.locator('#world').boundingBox();await page.mouse.click(box.x+x/960*box.width,box.y+y/540*box.height);
@@ -58,26 +58,41 @@ try {
 
   await mark(105,245);await carryPiece(270,335,480,440);await flag('edge_plate');
   await ready(0,2);await use('c');await flag('edge_teleport');
-  await select(1);await walk(665,315);await faceRight();await use('z');await flag('edge_reflect');
-  await next(4);console.log('✓ Borde: enemigo-regalo sobre placa, teletransporte seguro y robot.');
+  await select(1);await walk(520,315);await faceRight();await use('z');await flag('edge_reflect');
+  await page.screenshot({path:'test-results/borde.png',fullPage:true});
+  await walk(550,460);await next(4);console.log('✓ Borde: enemigo-regalo sobre placa, teletransporte seguro y robot.');
 
-  await select(2);await walk(225,325);await use('z');await flag('heart_power');
-  await walk(530,370);await ready(2,2);await use('c');await flag('heart_escort');await use('c');
-  await carryPiece(650,290,800,420);await flag('heart_piece');await next(5);
-  assert.equal((await state()).flags.victory,true);await select(1);await use('v');
-  await page.screenshot({path:'test-results/final.png',fullPage:true});console.log('✓ Final: tres esencias, rescate de Vicente y fiesta.');
+  assert.equal((await state()).flags.victory,undefined);
+  await select(2);await walk(225,325);await faceRight();await use('z');await flag('heart_power');
+  await carryPiece(430,270,475,455);await flag('heart_piece');
+  await page.screenshot({path:'test-results/corazon.png',fullPage:true});
+  await walk(430,365);await use('e');await dismiss();await flag('heart_fusion');await dismiss();
+  assert.equal((await state()).flags.victory,undefined,'la fusión todavía requiere al Ancianito');
+  await page.screenshot({path:'test-results/fusion.png',fullPage:true});
+  await walk(175,435);await use('e');await dismiss();await flag('victory');await dismiss();
+  assert.equal((await state()).scene,5);await select(1);await use('v');
+  await page.screenshot({path:'test-results/final.png',fullPage:true});
+  assert.ok((await state()).party>4);console.log('✓ Final: Sebastián camina y se fusiona, el Ancianito separa y devuelve a Vicente; fiesta para todos.');
 
-  await walk(450,250);await use('e');await dismiss();assert.equal((await state()).scene,6);
-  await select(2);await walk(225,325);await ready(2,0);await use('z');await flag('secret_power');
-  await carryPiece(560,295,770,420);await flag('secret_piece');await select(1);await ready(1,3);await use('v');await flag('secret_party');
-  assert.equal((await state()).complete,true);assert.equal(new Set((await state()).used).size,11);
-  await page.screenshot({path:'test-results/secreto.png',fullPage:true});console.log('✓ Secreto: desbloqueo por las tres marcas y desafío de los tres héroes; once poderes usados.');
+  await walk(450,250);await use('e');await dismiss();assert.equal((await state()).scene,6);assert.equal((await state()).player.hero,3);
+  assert.equal((await state()).flags.gaspar_unlocked,true);
+  await walk(400,265);await faceRight();await use('z');await flag('secret_reach');
+  await walk(620,350);await faceRight();await use('x');await flag('secret_guard1');
+  await walk(600,435);await faceRight();await use('v');await flag('secret_guard2');await use('c');
+  assert.equal((await state()).complete,true);assert.equal(new Set((await state()).used).size,15);
+  await page.screenshot({path:'test-results/secreto.png',fullPage:true});console.log('✓ Secreto: tres marcas, Gaspar, brazo elástico, superpuño, papa explosiva y teletransporte; quince poderes usados.');
 
-  await page.reload();await page.evaluate(async()=>{window.adventureModule=await import('/src/app.js');});await page.getByRole('button',{name:'Continuar mi aventura'}).click();assert.equal((await state()).scene,6);assert.equal((await state()).flags.secret_party,true);assert.equal((await state()).marks.length,3);
-  await page.getByRole('button',{name:'Ver viñetas'}).click();await page.getByRole('button',{name:/01 · El cuartel/}).click();assert.equal((await state()).scene,0);assert.equal((await state()).flags.base_power,true);
+  await page.reload();await page.evaluate(async()=>{window.adventureModule=await import('/src/app.js');});await page.getByRole('button',{name:'Continuar mi aventura'}).click();assert.equal((await state()).scene,6);assert.equal((await state()).flags.secret_guard2,true);assert.equal((await state()).marks.length,3);
+  await page.getByRole('button',{name:'Ver viñetas'}).click();await page.getByRole('button',{name:/01 · El cuartel/}).click();assert.equal((await state()).scene,0);assert.equal((await state()).flags.base_power,true);await select(3);assert.equal(await page.locator('#power-owner').textContent(),'GASPAR');
   await page.keyboard.press('Escape');assert.equal(await page.locator('#modal').evaluate(el=>el.open),true);const before=(await state()).time;await page.waitForTimeout(300);assert.equal((await state()).time,before);await page.getByRole('button',{name:'Volver a la aventura'}).click();
   await page.getByRole('button',{name:'Activar sonido'}).click();assert.equal(await page.locator('#sound').getAttribute('aria-pressed'),'true');
-  await page.getByRole('button',{name:'Abrir la historieta'}).click();await page.locator('.gallery-image').evaluate(img=>img.decode());await page.getByRole('button',{name:'Siguiente'}).click();assert.match(await page.locator('.gallery-image').getAttribute('alt'),/Página 2/);await page.getByRole('button',{name:'Cerrar',exact:true}).click();
+  await page.getByRole('button',{name:'Abrir la historieta'}).click();
+  for(let i=0;i<13;i++){
+    await page.locator('.gallery-image').evaluate(img=>img.decode());
+    assert.match(await page.locator('.gallery-image').getAttribute('alt'),i===0?/Tapa/:new RegExp('Página '+i+' de'));
+    if(i<12)await page.getByRole('button',{name:'Siguiente'}).click();
+  }
+  await page.getByRole('button',{name:'Cerrar',exact:true}).click();
   await page.setViewportSize({width:390,height:844});await page.screenshot({path:'test-results/movil.png',fullPage:true});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,'sin desborde horizontal a 390 px');
   for(const width of [320,768]){await page.setViewportSize({width,height:844});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,'sin desborde a '+width+' px');}
   // Model the repository prefix used by GitHub Pages without outside access.
@@ -87,7 +102,7 @@ try {
   });
   await page.goto(`${url}/Aventura-Papel/`);
   await page.evaluate(async()=>{const app=await import('/Aventura-Papel/src/app.js');await app.artworkReady;});
-  assert.equal(await page.evaluate(async()=>(await import('/Aventura-Papel/src/illustrations.js')).illustrations.size),3,'los fondos cargan con la ruta del proyecto en GitHub Pages');
+  assert.equal(await page.evaluate(async()=>(await import('/Aventura-Papel/src/illustrations.js')).illustrations.size),6,'las ilustraciones cargan con la ruta del proyecto en GitHub Pages');
   await page.getByRole('button',{name:'Continuar mi aventura'}).click();await page.keyboard.press('3');
   assert.equal(await page.locator('#power-owner').textContent(),'LUCA');
   assert.deepEqual(errors,[],'sin errores JavaScript');assert.deepEqual(failedResources,[],'todos los recursos cargan');
