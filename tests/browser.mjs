@@ -16,7 +16,7 @@ try {
   const errors=[],failedResources=[];
   page.on('pageerror',error=>errors.push(error.message));page.on('response',response=>{if(response.status()>=400)failedResources.push(`${response.status()} ${response.url()}`);});
   await page.goto(url);await page.evaluate(async()=>{window.adventureModule=await import('/src/app.js');await window.adventureModule.artworkReady;});
-  assert.equal(await page.evaluate(async()=>(await import('/src/illustrations.js')).illustrations.size),6,'los cinco fondos y la masa ilustrada están disponibles');
+  assert.equal(await page.evaluate(async()=>(await import('/src/illustrations.js')).illustrations.size),9,'las nueve ilustraciones están disponibles');
   assert.equal(await page.evaluate(async()=>{
     const {Illustrator}=await import('/src/art.js');const canvas=document.createElement('canvas');canvas.width=960;canvas.height=540;
     const illustrator=new Illustrator(canvas);illustrator.reduced=true;const game=window.adventureModule.game;
@@ -25,7 +25,7 @@ try {
   await page.screenshot({path:'test-results/inicio.png',fullPage:true});
   assert.match(await page.title(),/El apocalipsis Vicente/);
   await page.getByRole('button',{name:'¡Entrar en la historieta!'}).click();
-  const state=()=>page.evaluate(async()=>{const{game:g}=await import('/src/app.js');return{scene:g.scene,flags:g.flags,player:g.player,dialog:g.dialog,marks:g.marks,used:g.used,gift:g.gift,small:g.small,shield:g.shield,cooldowns:g.cooldowns,objects:g.objects,complete:g.complete,time:g.time,party:g.party,cinematic:g.cinematic};});
+  const state=()=>page.evaluate(async()=>{const{game:g}=await import('/src/app.js');return{scene:g.scene,flags:g.flags,player:g.player,dialog:g.dialog,marks:g.marks,used:g.used,gift:g.gift,small:g.small,shield:g.shield,cooldowns:g.cooldowns,objects:g.objects,complete:g.complete,time:g.time,party:g.party,cinematic:g.cinematic,weather:g.weather};});
   async function dismiss(){for(let i=0;i<6&&(await state()).dialog.length;i++)await page.keyboard.press('e');}
   async function walk(x,y){
     await dismiss();const box=await page.locator('#world').boundingBox();await page.mouse.click(box.x+x/960*box.width,box.y+y/540*box.height);
@@ -35,7 +35,7 @@ try {
   async function select(h){await page.keyboard.press(String(h+1));assert.equal((await state()).player.hero,h);}
   async function use(key){await page.keyboard.press(key);}
   async function flag(name){await page.waitForFunction(n=>window.adventureModule.game.flags[n]===true,name,{timeout:12000});}
-  async function next(scene){await walk(885,455);await use('e');await page.waitForFunction(n=>window.adventureModule.game.scene===n,scene,{timeout:4000});await dismiss();}
+  async function next(scene){if(Math.hypot((await state()).player.x-885,(await state()).player.y-455)>15)await walk(885,455);await use('e');await page.waitForFunction(n=>window.adventureModule.game.scene===n,scene,{timeout:4000});await dismiss();}
   async function mark(x,y){await walk(x,y);await use('e');}
   async function ready(hero,power){await page.waitForFunction(({hero,power})=>window.adventureModule.game.cooldowns[hero][power]===0,{hero,power},{timeout:15000});}
   async function carryPiece(x,y,slotX,slotY){await ready(0,1);await select(0);await walk(x-70,y);await faceRight();await use('x');assert.ok((await state()).gift,'se creó un regalo; estado: '+JSON.stringify(await state()));await walk(x,y);await use('e');assert.equal((await state()).gift.carried,true);await walk(slotX-50,slotY);await use('e');}
@@ -45,9 +45,11 @@ try {
   await next(1);console.log('✓ Cuartel: electricidad, cubo y salida mediante controles reales.');
 
   await select(0);await walk(295,340);await use('z');await flag('street_prism');
-  await carryPiece(210,435,800,415);await flag('street_piece');
-  await select(1);await walk(470,400);await use('x');await walk(545,400);await flag('street_sneak');
-  await walk(610,285);await use('c');await flag('street_target');
+  await walk(510,400);await page.keyboard.down('ArrowRight');await page.waitForTimeout(180);await page.keyboard.up('ArrowRight');assert.ok((await state()).player.x<522,'el láser impide cruzar visible');
+  await walk(140,435);await faceRight();await use('x');assert.ok((await state()).gift);await walk(210,435);await use('e');
+  await select(1);await walk(470,400);await use('x');await walk(560,400);await flag('street_sneak');assert.equal((await state()).gift.carried,true);
+  await walk(750,415);await use('e');await flag('street_piece');
+  await walk(610,285);await faceRight();await use('c');await flag('street_target');
   await mark(865,245);assert.deepEqual((await state()).marks,[1]);
   await next(2);console.log('✓ Calle: prisma, regalo transportado, invisibilidad, picos y primera marca.');
 
@@ -57,10 +59,9 @@ try {
   await next(3);console.log('✓ Laboratorio: conducto pequeño, tormenta y protección del Ancianito.');
 
   await mark(105,245);await carryPiece(270,335,480,440);await flag('edge_plate');
-  await ready(0,2);await use('c');await flag('edge_teleport');
   await select(1);await walk(520,315);await faceRight();await use('z');await flag('edge_reflect');
   await page.screenshot({path:'test-results/borde.png',fullPage:true});
-  await walk(550,460);await next(4);console.log('✓ Borde: enemigo-regalo sobre placa, teletransporte seguro y robot.');
+  await select(0);await ready(0,2);await use('c');await flag('edge_teleport');assert.ok((await state()).player.x>848);await next(4);console.log('✓ Borde: placa y robot, masa bloqueando el paso y salto obligatorio de Vicente a la salida.');
 
   assert.equal((await state()).flags.victory,undefined);
   await select(2);await walk(225,325);await faceRight();await use('z');await flag('heart_power');
@@ -72,7 +73,7 @@ try {
   await walk(175,435);await use('e');await dismiss();await flag('victory');await dismiss();
   assert.equal((await state()).scene,5);await select(1);await use('v');
   await page.screenshot({path:'test-results/final.png',fullPage:true});
-  assert.ok((await state()).party>4);console.log('✓ Final: Sebastián camina y se fusiona, el Ancianito separa y devuelve a Vicente; fiesta para todos.');
+  assert.ok((await state()).party>4);console.log('✓ Final: Sebástian camina y se fusiona, el Ancianito separa y devuelve a Vicente; fiesta para todos.');
 
   await walk(450,250);await use('e');await dismiss();assert.equal((await state()).scene,6);assert.equal((await state()).player.hero,3);
   assert.equal((await state()).flags.gaspar_unlocked,true);
@@ -84,6 +85,13 @@ try {
 
   await page.reload();await page.evaluate(async()=>{window.adventureModule=await import('/src/app.js');});await page.getByRole('button',{name:'Continuar mi aventura'}).click();assert.equal((await state()).scene,6);assert.equal((await state()).flags.secret_guard2,true);assert.equal((await state()).marks.length,3);
   await page.getByRole('button',{name:'Ver viñetas'}).click();await page.getByRole('button',{name:/01 · El cuartel/}).click();assert.equal((await state()).scene,0);assert.equal((await state()).flags.base_power,true);await select(3);assert.equal(await page.locator('#power-owner').textContent(),'GASPAR');
+  await walk(300,272);await faceRight();await ready(3,0);await use('z');await flag('amaral_unlocked');await dismiss();await select(4);
+  assert.equal(await page.locator('#power-owner').textContent(),'AMARAL');
+  for(const [key,kind] of [['z','fog'],['x','sun'],['c','wind']]){
+    await use(key);assert.equal((await state()).weather.kind,kind);await page.screenshot({path:`test-results/amaral-${kind}.png`,fullPage:true});
+  }
+  assert.equal(new Set((await state()).used).size,18);await page.reload();await page.evaluate(async()=>{window.adventureModule=await import('/src/app.js');await window.adventureModule.artworkReady;});await page.getByRole('button',{name:'Continuar mi aventura'}).click();
+  assert.equal((await state()).flags.amaral_unlocked,true);assert.equal((await state()).player.hero,4);console.log('✓ Amaral: cofre abierto con Gaspar, tres climas, dieciocho poderes y desbloqueo permanente al recargar.');
   await page.keyboard.press('Escape');assert.equal(await page.locator('#modal').evaluate(el=>el.open),true);const before=(await state()).time;await page.waitForTimeout(300);assert.equal((await state()).time,before);await page.getByRole('button',{name:'Volver a la aventura'}).click();
   await page.getByRole('button',{name:'Activar sonido'}).click();assert.equal(await page.locator('#sound').getAttribute('aria-pressed'),'true');
   await page.getByRole('button',{name:'Abrir la historieta'}).click();
@@ -102,9 +110,9 @@ try {
   });
   await page.goto(`${url}/Aventura-Papel/`);
   await page.evaluate(async()=>{const app=await import('/Aventura-Papel/src/app.js');await app.artworkReady;});
-  assert.equal(await page.evaluate(async()=>(await import('/Aventura-Papel/src/illustrations.js')).illustrations.size),6,'las ilustraciones cargan con la ruta del proyecto en GitHub Pages');
-  await page.getByRole('button',{name:'Continuar mi aventura'}).click();await page.keyboard.press('3');
-  assert.equal(await page.locator('#power-owner').textContent(),'LUCA');
+  assert.equal(await page.evaluate(async()=>(await import('/Aventura-Papel/src/illustrations.js')).illustrations.size),9,'las ilustraciones cargan con la ruta del proyecto en GitHub Pages');
+  await page.getByRole('button',{name:'Continuar mi aventura'}).click();await page.keyboard.press('5');
+  assert.equal(await page.locator('#power-owner').textContent(),'AMARAL');
   assert.deepEqual(errors,[],'sin errores JavaScript');assert.deepEqual(failedResources,[],'todos los recursos cargan');
   console.log('✓ Guardado y continuación, regreso a viñetas, pausa, sonido, historieta original, pantalla angosta y recursos bajo /Aventura-Papel/.');
 } catch(error) {

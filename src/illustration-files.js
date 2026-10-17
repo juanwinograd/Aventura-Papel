@@ -6,4 +6,7 @@ export const ILLUSTRATION_FILES={
   edge:'assets/illustrations/borde.webp',
   heart:'assets/illustrations/corazon.webp',
   mass:'assets/illustrations/masa.webp',
+  baseCalm:'assets/illustrations/cuartel-tranquilo.webp',
+  streetCalm:'assets/illustrations/calle-tranquila.webp',
+  secret:'assets/illustrations/secreto.webp',
 };

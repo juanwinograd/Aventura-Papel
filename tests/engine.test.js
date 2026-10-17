@@ -11,19 +11,19 @@ function useOn(g,hero,power,id,dx=-75){const o=g.objects.find(o=>o.id===id);asse
 function giftTo(g,id,destination){assert.equal(useOn(g,0,1,id),true);const o=g.objects.find(o=>o.id===id);at(g,o.x,o.y);g.interact();assert.equal(g.gift.carried,true);const slot=g.objects.find(o=>o.id===destination);at(g,slot.x-40,slot.y);g.interact();}
 function reflect(g,id){assert.equal(useOn(g,1,0,id),true);const enemy=g.objects.find(o=>o.id===id);enemy.shot=0;tick(g,.8);assert.equal(g.flags[enemy.flag],true);}
 
-test('las quince habilidades existen y cada héroe tiene sus recargas',()=>{const g=ready();assert.equal(HEROES.reduce((s,h)=>s+h.powers.length,0),15);assert.deepEqual(g.cooldowns.map(a=>a.length),[3,4,4,4]);});
+test('las dieciocho habilidades existen y cada héroe tiene sus recargas',()=>{const g=ready();assert.equal(HEROES.reduce((s,h)=>s+h.powers.length,0),18);assert.deepEqual(g.cooldowns.map(a=>a.length),[3,4,4,4,3]);});
 test('el prisma contiene un enemigo, se agota y no se aplica a NPC',()=>{const g=ready(1);useOn(g,0,0,'guard');assert.equal(g.flags.street_prism,true);assert.equal(g.objects.find(o=>o.id==='guard').prism,6);tick(g,6.1);assert.equal(g.objects.find(o=>o.id==='guard').prism,0);const base=ready();at(base,120,355,0);assert.equal(base.use(0),false);assert.equal(base.cooldowns[0][0],0);});
 test('el regalo conserva la pieza, viaja entre personajes y completa un mecanismo',()=>{const g=ready(1);assert.equal(useOn(g,0,1,'piece'),true);const id=g.gift.content;assert.equal(g.use(1),false);at(g,210,435);g.interact();g.select(1);assert.equal(g.gift.content,id);assert.equal(g.gift.carried,true);at(g,770,415);g.interact();assert.equal(g.flags.street_piece,true);assert.equal(g.gift,null);});
 test('abrir un regalo fuera de su destino devuelve el objeto sin perderlo',()=>{const g=ready(1);useOn(g,0,1,'piece');at(g,210,435);g.interact();at(g,100,455);g.interact();assert.equal(g.gift,null);const piece=g.objects.find(o=>o.id==='piece');assert.equal(piece.inGift,false);assert.equal(piece.x,155);tick(g,4.1);assert.equal(useOn(g,0,1,'piece'),true);});
 test('un enemigo equivocado no se consume en un mecanismo de piezas',()=>{const g=ready(1);useOn(g,0,1,'guard');at(g,365,340);g.interact();at(g,770,415);g.interact();assert.equal(g.flags.street_piece,undefined);assert.equal(g.gift.content,'guard');});
 test('un enemigo-regalo activa la placa, persiste resuelta tras perder y no se duplica',()=>{const g=ready(3);giftTo(g,'guard','plate');assert.equal(g.flags.edge_plate,true);assert.equal(g.gift.placed,true);g.enter(3,false);assert.equal(g.flags.edge_plate,true);assert.equal(g.complete,false);assert.equal(g.gift,null);});
 test('el cubo devuelve un proyectil real al lanzador',()=>{const g=ready();reflect(g,'launcher');assert.equal(g.flags.base_reflect,true);assert.ok(g.used.includes('1-0'));});
-test('la invisibilidad impide detectar a Fabrizio pero permite atacar',()=>{const g=ready(1);at(g,490,400,1);g.use(1);g.objects.find(o=>o.id==='guard').shot=0;g.update(.05);assert.equal(g.bullets.length,0);assert.equal(g.flags.street_sneak,true);at(g,620,270);assert.equal(g.use(2),true);assert.equal(g.flags.street_target,true);assert.ok(g.invisible>0);tick(g,5.1);assert.equal(g.invisible,0);assert.ok(g.cooldowns[1][1]>7);});
+test('la invisibilidad impide detectar a Fabrizio pero permite atacar',()=>{const g=ready(1);at(g,525,400,1);g.use(1);g.objects.find(o=>o.id==='guard').shot=0;g.update(.05,{x:1,y:0});assert.equal(g.bullets.length,0);assert.equal(g.flags.street_sneak,true);at(g,620,270);assert.equal(g.use(2),true);assert.equal(g.flags.street_target,true);assert.ok(g.invisible>0);tick(g,5.1);assert.equal(g.invisible,0);assert.ok(g.cooldowns[1][1]>7);});
 test('los picos activan blancos, aturden enemigos y respetan la orientación',()=>{const g=ready(1);at(g,620,270,1,{x:-1,y:0});g.use(2);assert.equal(g.flags.street_target,undefined);tick(g,2.1);at(g,620,270,1);g.use(2);assert.equal(g.flags.street_target,true);tick(g,2.1);useOn(g,1,2,'guard');assert.equal(g.objects.find(o=>o.id==='guard').stun,5);});
 test('la tormenta necesita energía para desplegar la antena y no pierde la consola',()=>{const g=ready(2);g.select(2);g.use(1);assert.equal(g.flags.lab_storm,undefined);g.cooldowns[2][1]=0;useOn(g,2,0,'switch');g.use(1);assert.equal(g.flags.lab_power,true);assert.equal(g.flags.lab_storm,true);});
 test('el conducto exige tamaño pequeño; no se puede crecer ni cambiar adentro',()=>{const g=ready(2);at(g,490,350,2);g.move(1,0,.05);assert.equal(g.player.x,490);g.use(3);g.move(1,0,.05);assert.ok(g.player.x>493);assert.equal(g.select(0),false);assert.equal(g.use(3),false);assert.equal(g.small,true);at(g,570,350);assert.equal(g.use(3),true);assert.equal(g.small,false);});
 test('el campo inmoviliza a Luca y protege a un NPC durante el cruce',()=>{const g=ready(2);g.flag('lab_power');g.flag('lab_storm');at(g,720,440,2);g.use(2);const{x,y}=g.player;g.move(1,0,.05);assert.deepEqual({x:g.player.x,y:g.player.y},{x,y});g.invulnerable=0;tick(g,3.2);assert.equal(g.player.health,3);assert.equal(g.flags.lab_escort,true);assert.ok(g.objects.find(o=>o.id==='escort').x>780);});
-test('el teletransporte evita riesgos y no cruza la pared del laboratorio',()=>{for(let r=0;r<1;r+=.1){const g=ready(2);g.random=()=>r;at(g,300,440,0);g.use(2);assert.ok(g.player.x<493);assert.ok(g.safe(g.player.x,g.player.y,false));assert.equal(g.hazard(g.player.x,g.player.y),false);}const edge=ready(3);at(edge,610,440,0);edge.use(2);assert.equal(edge.hazard(edge.player.x,edge.player.y),false);assert.equal(edge.flags.edge_teleport,true);});
+test('el teletransporte evita riesgos y no cruza la pared del laboratorio',()=>{for(let r=0;r<1;r+=.1){const g=ready(2);g.random=()=>r;at(g,300,440,0);g.use(2);assert.ok(g.player.x<493);assert.ok(g.safe(g.player.x,g.player.y,false));assert.equal(g.hazard(g.player.x,g.player.y),false);}const edge=ready(3);edge.flag('edge_plate');edge.flag('edge_reflect');at(edge,610,440,0);edge.use(2);assert.equal(edge.hazard(edge.player.x,edge.player.y),false);assert.equal(edge.flags.edge_teleport,true);});
 test('las recargas no se reinician al cambiar de héroe o de pantalla',()=>{const g=ready(1);useOn(g,0,0,'guard');g.select(1);tick(g,1);g.select(0);assert.ok(g.cooldowns[0][0]>3.9);g.enter(0,false);assert.ok(g.cooldowns[0][0]>3.9);});
 test('perder restaura el punto de control, suelta regalos y conserva lo resuelto',()=>{const g=ready(1);useOn(g,0,0,'guard');useOn(g,0,1,'piece');for(let i=0;i<3;i++){g.invulnerable=0;g.hurt();}assert.equal(g.player.health,3);assert.equal(g.player.x,110);assert.equal(g.gift,null);assert.equal(g.flags.street_prism,true);assert.equal(g.objects.find(o=>o.id==='piece').inGift,false);});
 test('diálogos y pausa detienen el tiempo, las recargas y los ataques',()=>{const g=ready(1);useOn(g,0,0,'guard');g.dialog=[['Ancianito','Hola']];tick(g,10);assert.equal(g.cooldowns[0][0],5);g.dialog=[];g.running=false;tick(g,10);assert.equal(g.cooldowns[0][0],5);});
@@ -37,6 +37,41 @@ function finishStory(g){
   at(g,175,435);g.interact();g.interact();assert.equal(g.cinematic.kind,'separate');tick(g,2.6);assert.equal(g.scene,5);
 }
 function secret(){const g=ready();g.marks=[1,2,3];g.flags.secret_open=true;g.enter(6,false);return g;}
+function amaral(){const g=secret();g.enter(0,false);at(g,300,272,3);assert.equal(g.use(0),true);g.dialog=[];g.select(4);return g;}
+
+test('el láser bloquea movimiento y teletransporte; solo Fabrizio invisible cruza con el regalo',()=>{
+  const g=ready(1);at(g,515,350,2);g.shield=5;assert.equal(g.safe(530,350),false);g.move(1,0,.05);assert.ok(g.player.x<522);
+  for(const r of [0,.5,.99]){g.select(0);g.random=()=>r;g.cooldowns[0][2]=0;g.use(2);assert.ok(g.player.x<530);}
+  useOn(g,0,1,'piece');at(g,210,435);g.interact();assert.equal(g.gift.carried,true);at(g,515,400,1);g.use(1);tick(g,.15);for(let i=0;i<5;i++)g.update(.05,{x:1,y:0});assert.ok(g.player.x>539);assert.equal(g.flags.street_sneak,true);assert.equal(g.gift.carried,true);
+});
+test('el Ancianito espera antes de la tormenta y pide ayuda después',()=>{
+  const g=ready(2),npc=g.objects.find(o=>o.id==='escort');assert.equal(g.needsHelp(npc),false);at(g,720,425);g.interact();assert.match(g.dialog[0][1],/Primero/);assert.doesNotMatch(g.dialog[0][1],/Necesito/);g.dialog=[];
+  useOn(g,2,0,'switch');g.use(1);assert.equal(g.needsHelp(npc),true);at(g,npc.x,npc.y);g.interact();assert.match(g.dialog[0][1],/campo de fuerza/);
+});
+test('la masa corta todo el paso al borde y Vicente debe saltar después de resolver placa y robot',()=>{
+  const g=ready(3);for(let y=235;y<=477;y+=2)assert.equal(g.massContact(735,y),true,'barrera continua en y='+y);
+  at(g,610,440,0);g.use(2);assert.equal(g.flags.edge_teleport,undefined);assert.ok(g.player.x<735);
+  g.flag('edge_plate');g.flag('edge_reflect');at(g,640,455);g.target={x:885,y:455};tick(g,1);assert.equal(g.lastDeath,'mass');assert.ok(g.player.x<735);
+  g.marks=[1,2,3];g.flags.secret_open=true;g.flag('gaspar_unlocked');g.select(3);g.use(2);assert.ok(g.player.x<735);assert.equal(g.flags.edge_teleport,undefined);
+  g.select(0);g.cooldowns[0][2]=0;g.use(2);assert.ok(g.player.x>848);assert.equal(g.massContact(g.player.x,g.player.y),false);assert.equal(g.flags.edge_teleport,true);assert.equal(g.complete,true);
+});
+test('el apocalipsis desaparece en todas las viñetas después del rescate',()=>{
+  const g=ready();g.flag('victory');for(const scene of [0,1,2,3,4,5]){g.enter(scene,false);assert.equal(g.mass,null);assert.equal(g.massContact(850,300),false);}
+});
+test('el cofre se abre con el brazo de Gaspar en la viñeta 1 y Amaral queda desbloqueada',()=>{
+  const locked=ready();assert.equal(locked.select(4),false);at(locked,615,272);locked.interact();assert.equal(locked.flags.amaral_unlocked,undefined);
+  const g=secret();g.enter(5,false);at(g,300,272,3);assert.equal(g.use(0),false);assert.equal(g.flags.amaral_unlocked,undefined);
+  g.enter(0,false);at(g,300,272,3,{x:-1,y:0});assert.equal(g.use(0),false);g.player.face={x:1,y:0};assert.equal(g.use(0),true);assert.equal(g.flags.amaral_unlocked,true);assert.equal(g.select(4),true);
+  const restored=new Adventure(g.serialize());assert.equal(restored.flags.amaral_unlocked,true);assert.equal(restored.player.hero,4);restored.enter(5,false);assert.equal(restored.flags.amaral_unlocked,true);restored.enter(0,false);restored.running=true;restored.dialog=[];at(restored,300,272,3);assert.equal(restored.use(0),false,'no se abre dos veces');
+});
+test('los climas de Amaral afectan enemigos, reemplazan el clima anterior y se agotan',()=>{
+  const g=amaral();g.enter(1,false);at(g,300,340,4);const enemy=g.objects.find(o=>o.id==='guard');enemy.shot=0;g.use(0);g.update(.05);assert.equal(g.bullets.length,0);assert.equal(g.concealed,true);assert.equal(g.safe(530,340),false,'la niebla no evita el láser');
+  g.use(1);assert.equal(g.weather.kind,'sun');assert.equal(g.concealed,false);g.update(.05);assert.equal(g.bullets.length,1);g.use(2);const {vx,vy}=g.bullets[0];g.update(.05);assert.ok(g.bullets[0].vx>vx);assert.ok(g.bullets[0].vy<vy);
+  assert.equal(g.use(2),false);g.select(0);assert.equal(g.weather.kind,'wind');tick(g,5.1);assert.equal(g.weather,null);assert.equal(g.used.includes('4-0'),true);assert.equal(g.used.includes('4-1'),true);assert.equal(g.used.includes('4-2'),true);
+});
+test('una partida de versión 2 conserva a Gaspar y exige rescatar a Amaral',()=>{
+  const g=secret(),save=g.serialize();save.version=2;const restored=new Adventure(save);assert.equal(restored.flags.gaspar_unlocked,true);assert.equal(restored.flags.amaral_unlocked,undefined);assert.equal(restored.select(4),false);
+});
 
 test('la masa crece entre viñetas, sin reloj, y absorbe incluso con escudo e invulnerabilidad',()=>{
   const g=ready(3);const initial={...g.mass};tick(g,20);assert.deepEqual(g.mass,initial);
@@ -79,10 +114,10 @@ test('el lector contiene la tapa y las doce páginas nuevas, con archivos existe
 test('recorrido completo: seis pantallas, rescate, guardado y viñeta secreta',()=>{
   const g=ready();g.maxScene=0;
   assert.equal(g.next(),false);useOn(g,2,0,'console');reflect(g,'launcher');assert.equal(g.next(),true);g.dialog=[];
-  useOn(g,0,0,'guard');at(g,530,400,1);g.use(1);g.update(.05);useOn(g,1,2,'target');giftTo(g,'piece','slot');assert.equal(g.complete,true);
+  useOn(g,0,0,'guard');at(g,525,400,1);g.use(1);g.update(.05,{x:1,y:0});useOn(g,1,2,'target');giftTo(g,'piece','slot');assert.equal(g.complete,true);
   at(g,865,245);g.interact();g.next();g.dialog=[];
   tick(g,14);at(g,95,245);g.interact();useOn(g,2,0,'switch');g.use(1);at(g,720,440,2);g.use(2);tick(g,3.2);assert.equal(g.complete,true);g.next();g.dialog=[];
-  tick(g,14);at(g,105,245);g.interact();giftTo(g,'guard','plate');g.select(0);g.use(2);reflect(g,'robot');assert.equal(g.complete,true);g.next();g.dialog=[];
+  tick(g,14);at(g,105,245);g.interact();giftTo(g,'guard','plate');reflect(g,'robot');g.select(0);g.use(2);assert.equal(g.complete,true);g.next();g.dialog=[];
   tick(g,14);useOn(g,2,0,'console');giftTo(g,'piece','slot');assert.equal(g.complete,false);assert.equal(g.next(),false);finishStory(g);g.dialog=[];
   assert.equal(g.flags.victory,true);assert.equal(g.scene,5);const saved=g.serialize();const restored=new Adventure(saved);assert.equal(restored.scene,5);assert.equal(restored.maxScene,5);assert.equal(restored.flags.victory,true);
   g.select(1);g.use(3);at(g,450,250);g.interact();g.dialog=[];assert.equal(g.scene,6);tick(g,11);

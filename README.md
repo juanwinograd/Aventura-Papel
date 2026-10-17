@@ -1,6 +1,6 @@
 # El apocalipsis Vicente
 
-Una aventura 2D para navegador basada en la historieta de la carpeta [`historieta/`](historieta/). Vicente, Fabrizio y Luca exploran viñetas, combinan once poderes y rescatan a Vicente de su propio apocalipsis. Incluye seis pantallas principales, una viñeta secreta que desbloquea a Gaspar y la historieta original con tapa para leer dentro del juego.
+Una aventura 2D para navegador basada en la historieta de la carpeta [`historieta/`](historieta/). Vicente, Fabrizio y Luca exploran viñetas, combinan once poderes y rescatan a Vicente de su propio apocalipsis. Incluye seis pantallas principales, una viñeta secreta que desbloquea a Gaspar, el rescate opcional de Amaral y la historieta original con tapa para leer dentro del juego.
 
 ## Jugar
 
@@ -22,11 +22,11 @@ Un meteoro convierte a Vicente en una enorme masa rosa que absorbe todo. Una peq
 | Fabrizio | Crear cubos que reflejan ataques, volverse invisible, lanzar picos y armar una fiesta subterránea. |
 | Luca | Invocar rayos eléctricos, crear tormentas, proteger con un campo de fuerza y hacerse chiquito para entrar en pasadizos. |
 
-Podés cambiar entre los tres durante la aventura. Al reunir las tres estrellas y entrar al nivel secreto, desbloqueás a **Gaspar** para todas las viñetas: brazo elástico, superpuño, teletransporte y **Papapumba**, una papa explosiva. Su desafío consiste en alcanzar una llave lejana y vencer a dos asistentes.
+Podés cambiar entre los tres durante la aventura. Al reunir las tres estrellas y entrar al nivel secreto, desbloqueás a **Gaspar** para todas las viñetas: brazo elástico, superpuño, teletransporte y **Papapumba**, una papa explosiva. Su desafío consiste en alcanzar una llave lejana y vencer a dos asistentes. Después, podés volver a la **viñeta 1** con Gaspar y usar su brazo elástico (Z) para abrir el cofre y liberar a **Amaral**, que queda disponible con **5** para toda la aventura. Sus climas afectan toda la pantalla: neblina (Z) que oculta al equipo de los enemigos, sol (X) que despeja e ilumina y viento (C) que desvía los disparos. Cada clima reemplaza al anterior, dura unos segundos y tiene recarga.
 
-Los poderes se recargan solos; al perder volvés al punto de control, conservando los acertijos resueltos. La masa rosa crece al avanzar la historia, sin reloj: tocarla devuelve inmediatamente al punto de control, incluso usando un escudo.
+Los poderes se recargan solos; al perder volvés al punto de control, conservando los acertijos resueltos. La masa rosa crece al avanzar la historia, sin reloj: tocarla devuelve inmediatamente al punto de control, incluso usando un escudo. En la viñeta 4 bloquea el camino completo: después de resolver la placa y el robot hay que usar C de Vicente para llegar a la salida. En la calle, el láser solo deja cruzar a Fabrizio invisible, que puede llevar el regalo mientras lo atraviesa.
 
-En el desenlace, Sebastián camina hacia la masa y se fusiona; después hay que hablar con el Ancianito para que los separe y reúna a Vicente con su cuerpo. La fiesta de Fabrizio ilumina toda la pantalla y hace bailar a los personajes del cierre.
+En el desenlace, Sebástian camina hacia la masa y se fusiona; después hay que hablar con el Ancianito para que los separe y reúna a Vicente con su cuerpo. La fiesta de Fabrizio ilumina toda la pantalla y hace bailar a los personajes del cierre. Alma (roja), Alma (violeta), Seshia, Sofía y Cata acompañan en el cuartel y la celebración. Al terminar la historia, la masa rosa desaparece también al volver a las viñetas anteriores; el cuartel final muestra el cielo tranquilo por la ventana y no tiene banderines.
 
 ## Jugar en desarrollo
 
@@ -58,7 +58,7 @@ npm ci --cache /workspace/.cache/npm --ignore-scripts --no-audit --no-fund
 | Acción | Control |
 | --- | --- |
 | Moverse | Flechas, WASD o clic en el suelo |
-| Elegir personaje | 1 Vicente, 2 Fabrizio, 3 Luca, 4 Gaspar al desbloquearlo; también sus tarjetas |
+| Elegir personaje | 1 Vicente, 2 Fabrizio, 3 Luca, 4 Gaspar y 5 Amaral al desbloquearlos; también sus tarjetas |
 | Poderes | Z, X, C y V, o sus botones en el panel |
 | Hablar, recoger, colocar o abrir regalos, avanzar | E o Espacio |
 | Pausa y controles | Escape o botón de ayuda |
@@ -95,7 +95,7 @@ npm run test:download
 
 - `check`: verifica la sintaxis de los módulos y del servidor.
 - `test`: pruebas del motor con el runner de Node; regalos y contenido, poderes, recargas, movimiento restringido, teletransporte seguro, protección de NPC, puntos de control, guardado, aventura completa y nivel secreto.
-- `test:browser`: inicia su propio servidor en el puerto 3107 y recorre el juego en Chromium con clics y teclas reales. Comprueba los quince poderes, el final con fusión y separación, las tres marcas, el nivel secreto de Gaspar, la continuación del guardado, pausa, sonido y lectura de la tapa y las doce páginas de la historieta. También verifica los fondos ilustrados, la estabilidad del trazo entre fotogramas idénticos, las rutas bajo `/Aventura-Papel/` y la ausencia de desborde horizontal a 320, 390 y 768 px. Guarda capturas en `test-results/`, una carpeta ignorada por Git.
+- `test:browser`: inicia su propio servidor en el puerto 3107 y recorre el juego en Chromium con clics y teclas reales. Comprueba los dieciocho poderes, el láser y el teletransporte obligatorio, el final con fusión y separación, las tres marcas, el nivel secreto de Gaspar, el cofre de Amaral y sus tres climas, la continuación del guardado, pausa, sonido y lectura de la tapa y las doce páginas de la historieta. También verifica los fondos ilustrados, la estabilidad del trazo entre fotogramas idénticos, las rutas bajo `/Aventura-Papel/` y la ausencia de desborde horizontal a 320, 390 y 768 px. Guarda capturas en `test-results/`, una carpeta ignorada por Git.
 - `test:download`: verifica el HTML generado, el movimiento, un poder, el guardado y la continuación. Sirve el archivo en el puerto 3108, corta la conexión después de la carga y comprueba que no se pidan recursos externos. La política del Chromium administrado impide navegar a `file://`; la apertura directa desde el sistema de archivos no pudo verificarse aquí.
 
 Las pruebas del navegador usan `/usr/bin/chromium` si existe, o el navegador instalado por Playwright. En otra máquina, ejecutar `npx playwright install chromium` antes de las pruebas. Se puede indicar un ejecutable con `CHROMIUM_PATH` y cambiar el puerto de prueba con `TEST_PORT`.
@@ -108,11 +108,11 @@ Las pruebas del navegador usan `/usr/bin/chromium` si existe, o el navegador ins
 - `src/content.js`: pantallas, diálogos, acertijos y poderes.
 - `src/art.js`: personajes y escenarios dibujados en Canvas, conservando las formas aprobadas.
 - `src/sketch.js`: contornos de lápiz, rellenos a rayitas y grano de papel; las marcas se reutilizan para que el trazo permanezca estable al animarse.
-- `assets/illustrations/`: fondos del cuartel, la calle, el laboratorio, el borde y el desenlace, junto con la masa rosa transparente. Se generaron tomando el arte aprobado como referencia visual. La fiesta reutiliza el cuartel.
+- `assets/illustrations/`: fondos del cuartel, la calle, el laboratorio, el borde, el desenlace y el nivel secreto, además de versiones del cuartel y la calle después del rescate, junto con la masa rosa transparente. Se generaron tomando el arte aprobado como referencia visual. La fiesta usa el cuartel con la ventana despejada.
 - `src/illustration-files.js`: lista de fondos, compartida por la aplicación y el generador del HTML descargable. El generador incluye las imágenes dentro del archivo para conservar el funcionamiento sin conexión.
 - `src/app.js`: interfaz, controles, guardado y lectura de la tapa y las doce páginas de la historieta.
 - `src/audio.js`: efectos breves sintetizados con Web Audio.
 
-Vicente y Luca flotan sin piernas. Luca tiene un solo pelo doblado. Fabrizio tiene un resorte de pelo, uno de pierna y dos de brazos. El Ancianito tiene una pequeña barba y sostiene su bastón; Gaspar conserva la cara redonda con extremidades radiales de su dibujo. Las estrellas secretas se dibujan sobre los escenarios y efectos para que sean visibles. Los dibujos originales no se modifican. La tipografía Patrick Hand está incluida bajo su licencia OFL en `assets/FONT-LICENSE.txt`.
+Vicente y Luca flotan sin piernas. Luca tiene un solo pelo doblado. Fabrizio tiene un resorte de pelo, uno de pierna y dos de brazos. El Ancianito tiene una pequeña barba y sostiene su bastón; Gaspar conserva la cara redonda con extremidades radiales de su dibujo. Amaral conserva el cuerpo de rombo multicolor y la cabeza amarilla de la referencia adjunta; las cinco chicas mantienen sus siluetas y colores. Fusi conserva el pelo y la cabeza abierta del glosario, diferenciada de sus asistentes. Las estrellas secretas se dibujan sobre los escenarios y efectos para que sean visibles, sin recuadros. El blanco y la antena tienen fondos claros y rótulos para distinguirlos del escenario. Los dibujos originales no se modifican. La tipografía Patrick Hand está incluida bajo su licencia OFL en `assets/FONT-LICENSE.txt`.
 
 Primera versión para una persona en computadora con teclado y mouse. La interfaz se adapta a pantallas angostas, pero no incluye controles táctiles completos ni multijugador. La duración de 10–15 minutos es un objetivo de diseño que debe ajustarse con una partida de la familia; las pruebas automáticas no miden esa experiencia.
