@@ -6,3 +6,42 @@
 @media(max-width:820px){.page{padding:0 17px}.masthead{height:65px}.wordmark{font-size:10px;letter-spacing:1px}.header-actions{gap:8px}.icon-button span{display:none}.title-row{margin:25px 0}h1{font-size:46px}.eyebrow{font-size:7px}.hand-note{display:none}.adventure-layout{grid-template-columns:1fr}.crew{display:grid;grid-template-columns:1fr 1fr;gap:0 20px}.crew-heading{grid-column:1/-1}.crew #characters{grid-row:2/5}.powers-heading{margin:0 0 6px}.secret-note{margin-top:10px;padding-top:10px;grid-column:1/-1}.interact-button{margin-top:10px}.hero-card{height:78px}.hero-card p{font-size:9px}.power{min-height:50px}.keyboard-strip{flex-wrap:wrap;gap:10px 20px}.under-panel{margin-bottom:16px}.mission #objective{font-size:11px}.footer-number{display:none}.home-copy h2{font-size:clamp(20px,5vw,32px)}.home-copy p{font-size:clamp(9px,1.9vw,12px)}.sticker{font-size:6px}.home-copy .primary-button{font-size:10px;padding:8px 10px}.corner-note{font-size:12px}.bubble{padding:10px 15px}#speaker{font-size:20px}#speech{font-size:12px;line-height:1.5}.toast{font-size:10px}.interaction{font-size:9px;bottom:10px}}
 @media(max-width:470px){h1{font-size:38px}.home-copy h2{margin:10px 0;font-size:23px}.home-copy p{font-size:9px;line-height:1.4}.home-copy .keyboard-note{display:none}.home-copy .primary-button{font-size:8px;padding:5px 8px;margin:10px 0 2px}.home-copy .primary-button span{font-size:16px}.home-copy #continue{font-size:9px;padding:3px 0}.corner-note{bottom:7px;right:8px;font-size:10px}.crew{gap:0 12px}.hero-card{padding:9px 6px;gap:3px}.hero-card canvas{width:40px}.hero-card h3{font-size:21px}.hero-card p{font-size:8px;max-width:110px}.hero-key{display:none}.power strong{font-size:10px}.power small{font-size:7px}.powers-heading{font-size:7px}.powers-heading>span:last-child{display:none}.power .power-icon{width:25px;height:25px;font-size:20px}.power{gap:6px}.mission{padding:12px 10px;gap:9px}.hint-button{font-size:9px;padding:7px}.mission-icon{font-size:26px}.under-panel{font-size:8px}.under-panel #health{font-size:20px}.bubble{bottom:8%;left:3%;right:3%}#speech{font-size:11px;margin:4px 0}#speaker{font-size:18px}.bubble .text-button{font-size:10px;padding:0}.interaction{font-size:8px;max-width:95%;white-space:normal}.stage{min-height:230px}.stage canvas#world{object-fit:fill}.controls-grid{grid-template-columns:1fr!important}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* The controls live on scraps of the same sketchbook as the adventure. */
+:root{--paper:#faf8f1;--ink:#35352e;--line:#d8d3c6;--pink:#f05a9f}
+.paper-grain{opacity:.27}
+.masthead{border-bottom-style:dashed}
+.stage{background:#fffdf7;border-color:#4d493f;border-radius:3px 6px 2px 5px;box-shadow:2px 3px 0 #c4bdaa66}
+.home-overlay{background:none;pointer-events:none}
+.home-copy{position:relative;pointer-events:auto;max-width:46%;margin:3% 0 0 4%;padding:3% 2.5%;background:#fffef8f5;border:1px solid #b7b0a0;border-radius:2px 7px 3px 5px;box-shadow:3px 3px 0 #c7beaa55;transform:rotate(-.7deg)}
+.home-copy:before{content:'';position:absolute;width:74px;height:17px;background:#f0d899a6;top:-9px;left:38%;transform:rotate(-7deg);border-left:1px dashed #c9b57566;border-right:1px dashed #c9b57566}
+.home-copy h2{margin-top:14px}
+.home-copy .sticker{font:13px var(--hand);letter-spacing:.3px;color:#80704b;background:transparent;padding:0}
+.primary-button{font:22px var(--hand);border-width:1.5px;background:#f5edbd;color:#444435;border-radius:3px 7px 4px 6px;box-shadow:2px 2px 0 #9c9074;transform:rotate(-.5deg)}
+.primary-button:hover{background:#f3df93}
+.home-copy .primary-button{font:clamp(14px,1.5vw,21px) var(--hand);padding:8px 13px}
+.corner-note{color:#766140}
+.hero-card{background:#fffdf6;border-color:#bdb5a3;border-radius:3px 8px 4px 6px;transform:rotate(-.3deg)}
+.hero-card:nth-child(2){transform:rotate(.5deg)}
+.hero-card:nth-child(3){transform:rotate(-.6deg)}
+.hero-card.selected{border-color:var(--hero-color);background-color:var(--hero-bg);background-image:repeating-linear-gradient(116deg,transparent 0 5px,var(--hero-bg) 5px 6px);box-shadow:2px 2px 0 #c7bca16e}
+.hero-card .hero-key{font:13px var(--hand);border-color:#b4ad9b;transform:rotate(4deg);padding:0 4px}
+.hero-card h3{font-size:26px}
+.power .power-icon{background:transparent;border:0;border-radius:0;font-size:32px;transform:rotate(-4deg)}
+.power .power-key{font:19px var(--hand);color:#696f54}
+.power strong{font:19px var(--hand)}
+.power small{font-size:9px;line-height:1.35;color:#777d6a}
+.powers-heading>span:last-child{color:#8a7750}
+.interact-button{background:#f3efde;border-color:#afa993;font:16px var(--hand);border-radius:2px 6px 3px 4px}
+.mission{position:relative;background:#f6f1df;border-color:#c2b89f;border-radius:3px 6px 2px 4px}
+.mission:before{content:'';position:absolute;width:35px;height:12px;background:#e9d39899;top:-6px;left:12px;transform:rotate(-10deg);pointer-events:none}
+.hint-button{font:16px var(--hand);border-color:#b9ad8c;background:#fff9e7;padding:4px 10px;transform:rotate(1deg)}
+.bubble{border-color:#4d4438;box-shadow:3px 3px 0 #bcb19a7a;background:#fffef5;border-radius:20px 17px 26px 15px}
+.bubble:after{background:#fffef5;border-color:#4d4438}
+.toast{background:#fffdf0;border-color:#ada38a;box-shadow:2px 2px 0 #bbae8a77}
+.chapter-number{font-size:20px;border-color:#9b927d;background:#fffdf5}
+.secret-note strong{font-size:19px;color:#716543}
+.secret-note p{color:#81806b}
+@media(max-width:1120px){.home-copy{padding:2.5%;margin-top:3%;max-width:48%}.home-copy h2{font-size:29px}.home-copy .primary-button{font-size:17px;padding:6px 10px}.power strong{font-size:17px}.power small{font-size:8px}.power{padding:9px 0}}
+@media(max-width:820px){.home-copy h2{font-size:clamp(20px,4.2vw,30px)}.home-copy .primary-button{font-size:clamp(13px,2.5vw,18px)}.home-copy .sticker{font-size:10px}.power strong{font-size:17px}.secret-note strong{font-size:18px}}
+@media(max-width:470px){.home-copy{max-width:48%;margin-top:4%;padding:2.5%}.home-copy:before{height:11px;width:45px;top:-5px}.home-copy h2{font-size:21px;line-height:1.02;margin:8px 0}.home-copy .sticker{font-size:8px}.home-copy p{font-size:9px;line-height:1.35;margin-bottom:8px}.home-copy .primary-button{font-size:12px;padding:5px 7px;margin:8px 0 2px;gap:6px}.home-copy #continue{font-size:9px;padding:2px 0}.hero-card h3{font-size:23px}.power strong{font-size:16px}.power small{font-size:7px}.power .power-key{font-size:15px}.power .power-icon{font-size:26px}.interact-button{font-size:14px}.hint-button{font-size:15px}.secret-note strong{font-size:17px}}

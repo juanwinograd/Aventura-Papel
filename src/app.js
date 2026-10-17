@@ -2,6 +2,7 @@ import { Adventure, distance } from './engine.js';
 import { HEROES, SCENES, SAVE_KEY } from './content.js';
 import { Illustrator } from './art.js';
 import { Soundtrack } from './audio.js';
+import { illustrationsReady } from './illustrations.js';
 
 const $=s=>document.querySelector(s);
 const world=$('#world'), modal=$('#modal'), audio=new Soundtrack();
@@ -139,4 +140,5 @@ function frame(now){
 }
 makeCards();sync();
 if(!storageAvailable)$('#save-status').textContent='Guardado no disponible en este navegador';
-document.fonts.ready.then(()=>requestAnimationFrame(frame));
+export const artworkReady=Promise.all([document.fonts.ready,illustrationsReady]);
+artworkReady.then(()=>requestAnimationFrame(frame));

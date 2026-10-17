@@ -15,7 +15,13 @@ try {
   page=await browser.newPage({viewport:{width:1440,height:1100},deviceScaleFactor:1});
   const errors=[],failedResources=[];
   page.on('pageerror',error=>errors.push(error.message));page.on('response',response=>{if(response.status()>=400)failedResources.push(`${response.status()} ${response.url()}`);});
-  await page.goto(url);await page.evaluate(()=>document.fonts.ready);await page.evaluate(async()=>{window.adventureModule=await import('/src/app.js');});
+  await page.goto(url);await page.evaluate(async()=>{window.adventureModule=await import('/src/app.js');await window.adventureModule.artworkReady;});
+  assert.equal(await page.evaluate(async()=>(await import('/src/illustrations.js')).illustrations.size),3,'los tres fondos ilustrados están disponibles');
+  assert.equal(await page.evaluate(async()=>{
+    const {Illustrator}=await import('/src/art.js');const canvas=document.createElement('canvas');canvas.width=960;canvas.height=540;
+    const illustrator=new Illustrator(canvas);illustrator.reduced=true;const game=window.adventureModule.game;
+    illustrator.draw(game,true);const first=canvas.toDataURL();illustrator.draw(game,true);return first===canvas.toDataURL();
+  }),true,'el lápiz mantiene los mismos trazos entre fotogramas idénticos');
   await page.screenshot({path:'test-results/inicio.png',fullPage:true});
   assert.match(await page.title(),/El apocalipsis Vicente/);
   await page.getByRole('button',{name:'¡Entrar en la historieta!'}).click();
@@ -74,8 +80,18 @@ try {
   await page.getByRole('button',{name:'Abrir la historieta'}).click();await page.locator('.gallery-image').evaluate(img=>img.decode());await page.getByRole('button',{name:'Siguiente'}).click();assert.match(await page.locator('.gallery-image').getAttribute('alt'),/Página 2/);await page.getByRole('button',{name:'Cerrar',exact:true}).click();
   await page.setViewportSize({width:390,height:844});await page.screenshot({path:'test-results/movil.png',fullPage:true});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,'sin desborde horizontal a 390 px');
   for(const width of [320,768]){await page.setViewportSize({width,height:844});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,'sin desborde a '+width+' px');}
+  // Model the repository prefix used by GitHub Pages without outside access.
+  await page.route(`${url}/Aventura-Papel/**`,async route=>{
+    const target=new URL(route.request().url());target.pathname=target.pathname.replace(/^\/Aventura-Papel/,'')||'/';
+    await route.fulfill({response:await route.fetch({url:target.href})});
+  });
+  await page.goto(`${url}/Aventura-Papel/`);
+  await page.evaluate(async()=>{const app=await import('/Aventura-Papel/src/app.js');await app.artworkReady;});
+  assert.equal(await page.evaluate(async()=>(await import('/Aventura-Papel/src/illustrations.js')).illustrations.size),3,'los fondos cargan con la ruta del proyecto en GitHub Pages');
+  await page.getByRole('button',{name:'Continuar mi aventura'}).click();await page.keyboard.press('3');
+  assert.equal(await page.locator('#power-owner').textContent(),'LUCA');
   assert.deepEqual(errors,[],'sin errores JavaScript');assert.deepEqual(failedResources,[],'todos los recursos cargan');
-  console.log('✓ Guardado y continuación, regreso a viñetas, pausa, sonido, historieta original y pantalla angosta.');
+  console.log('✓ Guardado y continuación, regreso a viñetas, pausa, sonido, historieta original, pantalla angosta y recursos bajo /Aventura-Papel/.');
 } catch(error) {
   if(page)await page.screenshot({path:'test-results/fallo.png',fullPage:true}).catch(()=>{});
   console.error(serverLog);throw error;

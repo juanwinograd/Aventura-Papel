@@ -10,6 +10,8 @@ El juego está publicado en GitHub Pages. Se juega gratis desde el navegador, si
 
 Elegí «¡Entrar en la historieta!» para empezar o «Continuar mi aventura» para recuperar una partida guardada. Podés activar los efectos de sonido con el botón ♪ y pedir «Una pista» cuando necesites ayuda.
 
+![El cuartel con el acabado de lápiz y marcador de la historieta](docs/vista-juego.webp)
+
 ## La aventura
 
 Un meteoro convierte a Vicente en una enorme masa rosa que absorbe todo. Una pequeña esencia suya logra escapar: junto con Fabrizio y Luca deberá recuperar las esencias y salvar el mundo. La historia adapta las ideas de la historieta original para convertirlas en una aventura de exploración y acertijos, con peleas cómicas y una fiesta al final.
@@ -89,7 +91,7 @@ npm run test:download
 
 - `check`: verifica la sintaxis de los módulos y del servidor.
 - `test`: pruebas del motor con el runner de Node; regalos y contenido, poderes, recargas, movimiento restringido, teletransporte seguro, protección de NPC, puntos de control, guardado, aventura completa y nivel secreto.
-- `test:browser`: inicia su propio servidor en el puerto 3107 y recorre el juego en Chromium con clics y teclas reales. Comprueba los once poderes, el final, las tres marcas, el nivel secreto, la continuación del guardado, pausa, sonido, lectura de la historieta y ausencia de desborde horizontal a 390 px. Guarda capturas en `test-results/`, una carpeta ignorada por Git.
+- `test:browser`: inicia su propio servidor en el puerto 3107 y recorre el juego en Chromium con clics y teclas reales. Comprueba los once poderes, el final, las tres marcas, el nivel secreto, la continuación del guardado, pausa, sonido y lectura de la historieta. También verifica los fondos ilustrados, la estabilidad del trazo entre fotogramas idénticos, las rutas bajo `/Aventura-Papel/` y la ausencia de desborde horizontal a 320, 390 y 768 px. Guarda capturas en `test-results/`, una carpeta ignorada por Git.
 - `test:download`: verifica el HTML generado, el movimiento, un poder, el guardado y la continuación. Sirve el archivo en el puerto 3108, corta la conexión después de la carga y comprueba que no se pidan recursos externos. La política del Chromium administrado impide navegar a `file://`; la apertura directa desde el sistema de archivos no pudo verificarse aquí.
 
 Las pruebas del navegador usan `/usr/bin/chromium` si existe, o el navegador instalado por Playwright. En otra máquina, ejecutar `npx playwright install chromium` antes de las pruebas. Se puede indicar un ejecutable con `CHROMIUM_PATH` y cambiar el puerto de prueba con `TEST_PORT`.
@@ -101,6 +103,9 @@ Las pruebas del navegador usan `/usr/bin/chromium` si existe, o el navegador ins
 - `src/engine.js`: reglas y estado del juego, independiente del dibujo y del navegador.
 - `src/content.js`: pantallas, diálogos, acertijos y poderes.
 - `src/art.js`: personajes y escenarios dibujados en Canvas, conservando las formas aprobadas.
+- `src/sketch.js`: contornos de lápiz, rellenos a rayitas y grano de papel; las marcas se reutilizan para que el trazo permanezca estable al animarse.
+- `assets/illustrations/`: fondos del cuartel, la calle y el laboratorio, generados tomando la lámina aprobada como referencia visual. La fiesta reutiliza el cuartel.
+- `src/illustration-files.js`: lista de fondos, compartida por la aplicación y el generador del HTML descargable. El generador incluye las imágenes dentro del archivo para conservar el funcionamiento sin conexión.
 - `src/app.js`: interfaz, controles, guardado y lectura de la historieta.
 - `src/audio.js`: efectos breves sintetizados con Web Audio.
 
