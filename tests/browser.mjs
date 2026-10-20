@@ -25,7 +25,7 @@ try {
   await page.screenshot({path:'test-results/inicio.png',fullPage:true});
   assert.match(await page.title(),/El apocalipsis Vicente/);
   await page.getByRole('button',{name:'¡Entrar en la historieta!'}).click();
-  const state=()=>page.evaluate(async()=>{const{game:g}=await import('/src/app.js');return{scene:g.scene,flags:g.flags,player:g.player,dialog:g.dialog,marks:g.marks,used:g.used,gift:g.gift,small:g.small,shield:g.shield,cooldowns:g.cooldowns,objects:g.objects,complete:g.complete,time:g.time,party:g.party,cinematic:g.cinematic,weather:g.weather};});
+  const state=()=>page.evaluate(async()=>{const{game:g}=await import('/src/app.js');return{scene:g.scene,flags:g.flags,player:g.player,dialog:g.dialog,marks:g.marks,used:g.used,gift:g.gift,small:g.small,shield:g.shield,cooldowns:g.cooldowns,objects:g.objects,complete:g.complete,time:g.time,party:g.party,cinematic:g.cinematic,weather:g.weather,clones:g.clones};});
   async function dismiss(){for(let i=0;i<6&&(await state()).dialog.length;i++)await page.keyboard.press('e');}
   async function walk(x,y){
     await dismiss();const box=await page.locator('#world').boundingBox();await page.mouse.click(box.x+x/960*box.width,box.y+y/540*box.height);
@@ -103,6 +103,23 @@ try {
   assert.ok((await state()).objects.some(o=>o.patrol&&o.bubble>0));await page.screenshot({path:'test-results/burbuja-temporal.png',fullPage:true});
   await page.reload();await page.evaluate(async()=>{window.adventureModule=await import('/src/app.js');await window.adventureModule.artworkReady;});await page.getByRole('button',{name:'Continuar mi aventura'}).click();
   assert.equal((await state()).scene,7);assert.equal((await state()).player.hero,5);assert.equal((await state()).flags.time_bubble,true);
+  await next(8);await select(4);await ready(4,0);await use('z');await select(5);
+  await walk(425,350);await faceRight();await ready(5,0);await use('z');
+  await walk(425,430);await faceRight();await ready(5,0);await use('z');
+  assert.equal((await state()).objects.filter(o=>o.temporalGuardian&&o.bubble>0).length,2);
+  await walk(550,390);await use('e');await flag('quarry_open');
+  await walk(760,390);await use('e');await dismiss();await flag('sebastian_unlocked');await select(6);
+  await page.screenshot({path:'test-results/cantera-sebastian.png',fullPage:true});
+  await next(9);await walk(350,390);await faceRight();await ready(6,0);await use('z');await flag('rock_bridge');
+  await walk(700,390);await flag('bridge_crossed');await walk(760,390);await use('e');await dismiss();await flag('benicio_unlocked');await select(7);
+  for(let i=0;i<7;i++)await use('z');
+  assert.equal((await state()).clones.length,7);await use('z');assert.equal((await state()).clones.length,7);
+  assert.equal((await state()).cooldowns[7][0],0);assert.equal(new Set((await state()).used).size,21);
+  await page.waitForTimeout(150);assert.match(await page.locator('.power').getAttribute('aria-label'),/7 de 7/);
+  await page.screenshot({path:'test-results/puente-benicio.png',fullPage:true});
+  await page.reload();await page.evaluate(async()=>{window.adventureModule=await import('/src/app.js');await window.adventureModule.artworkReady;});await page.getByRole('button',{name:'Continuar mi aventura'}).click();
+  assert.equal((await state()).scene,9);assert.equal((await state()).player.hero,7);assert.equal((await state()).flags.benicio_unlocked,true);assert.equal((await state()).clones.length,0);
+  console.log('✓ Cantera y puente: dos burbujas simultáneas, Sebástian, construcción y cruce del puente, Benicio, siete clones sin recarga y guardado; veintiún poderes.');
   await page.getByRole('button',{name:'Ver viñetas'}).click();await page.getByRole('button',{name:/01 · El cuartel/}).click();await select(5);
   console.log('✓ Jardín: sol, engranaje con Gaspar, viento, rescate de Aarón, burbuja sobre un asistente que camina y guardado permanente; diecinueve poderes.');
   await page.keyboard.press('Escape');assert.equal(await page.locator('#modal').evaluate(el=>el.open),true);const before=(await state()).time;await page.waitForTimeout(300);assert.equal((await state()).time,before);await page.getByRole('button',{name:'Volver a la aventura'}).click();

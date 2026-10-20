@@ -30,6 +30,10 @@ Los poderes se recargan solos; al perder volvés al punto de control, conservand
 
 En el desenlace, Sebástian camina hacia la masa y se fusiona; después hay que hablar con el Ancianito para que los separe y reúna a Vicente con su cuerpo. La fiesta de Fabrizio ilumina toda la pantalla y hace bailar a los personajes del cierre. Alma (cara flotante suave), Alma (violeta), Seshia, Sofía y Cata acompañan en el cuartel y la celebración. Al terminar la historia, la masa rosa desaparece también al volver a las viñetas anteriores; el cuartel final muestra el cielo tranquilo por la ventana y no tiene banderines.
 
+Después de probar la burbuja de Aarón en la **viñeta 8**, la salida de la derecha lleva a **La cantera a destiempo (viñeta 9)**. Encerrá a los dos guardianes en burbujas temporales y abrí el cerrojo con E mientras ambas sigan activas. Del otro lado, hablá con **Sebástian**: queda disponible con **7**. Con Z construye un puente junto a un montón de rocas o levanta muros que frenan tres disparos y duran diez segundos.
+
+En **El puente de los siete (viñeta 10)**, Sebástian construye el puente con Z mirando las rocas. Hay que cruzarlo caminando por el centro y hablar con **Benicio**, que queda disponible con **8**. Su dibujo conserva el azul, la cara sin rellenar, los dos mechones y el cuerpo sin piernas de la referencia. Cada Z crea un clon que camina y pelea solo. Puede haber **siete clones vivos además del original**, **sin tiempo de recarga**: si un disparo elimina uno, se puede crear su reemplazo inmediatamente. Los clones siguen activos al cambiar de personaje, respetan paredes y peligros y desaparecen al cambiar de viñeta, perder o recargar. Los desbloqueos y el puente se conservan. Las partidas anteriores pueden descubrir las nuevas viñetas sin reiniciar.
+
 ## Jugar en desarrollo
 
 Requiere Node.js 20 o posterior.
@@ -60,7 +64,7 @@ npm ci --cache /workspace/.cache/npm --ignore-scripts --no-audit --no-fund
 | Acción | Control |
 | --- | --- |
 | Moverse | Flechas, WASD o clic en el suelo |
-| Elegir personaje | 1 Vicente, 2 Fabrizio, 3 Luca, 4 Gaspar, 5 Amaral y 6 Aarón Mamani al desbloquearlos; también sus tarjetas |
+| Elegir personaje | 1 Vicente, 2 Fabrizio, 3 Luca, 4 Gaspar, 5 Amaral, 6 Aarón Mamani, 7 Sebástian y 8 Benicio al desbloquearlos; también sus tarjetas |
 | Poderes | Z, X, C y V, o sus botones en el panel |
 | Hablar, recoger, colocar o abrir regalos, avanzar | E o Espacio |
 | Pausa y controles | Escape o botón de ayuda |
@@ -99,7 +103,7 @@ npm run test:download
 
 - `check`: verifica la sintaxis de los módulos y del servidor.
 - `test`: pruebas del motor con el runner de Node; regalos y contenido, poderes, recargas, movimiento restringido, teletransporte seguro, protección de NPC, puntos de control, guardado, aventura completa y nivel secreto.
-- `test:browser`: inicia su propio servidor en el puerto 3107 y recorre el juego en Chromium con clics y teclas reales. Comprueba los diecinueve poderes, el láser y el teletransporte obligatorio, el final con fusión y separación, las tres marcas, el nivel secreto de Gaspar, el cofre de Amaral y sus tres climas, el jardín de Aarón y la burbuja temporal sobre un asistente que camina, la continuación del guardado, pausa, sonido y lectura de la tapa y las doce páginas de la historieta. También verifica los fondos ilustrados, la estabilidad del trazo entre fotogramas idénticos, las rutas bajo `/Aventura-Papel/` y la ausencia de desborde horizontal a 320, 390 y 768 px. Guarda capturas en `test-results/`, una carpeta ignorada por Git.
+- `test:browser`: inicia su propio servidor en el puerto 3107 y recorre el juego en Chromium con clics y teclas reales. Comprueba los veintiún poderes, el láser y el teletransporte obligatorio, el final con fusión y separación, las tres marcas, el nivel secreto de Gaspar, el cofre de Amaral y sus tres climas, el jardín de Aarón y la burbuja temporal sobre un asistente que camina, la cantera con dos burbujas simultáneas, el puente de rocas, Sebástian, Benicio y sus siete clones, la continuación del guardado, pausa, sonido y lectura de la tapa y las doce páginas de la historieta. También verifica los fondos ilustrados, la estabilidad del trazo entre fotogramas idénticos, las rutas bajo `/Aventura-Papel/` y la ausencia de desborde horizontal a 320, 390 y 768 px. Guarda capturas en `test-results/`, una carpeta ignorada por Git.
 - `test:download`: verifica el HTML generado, el movimiento, un poder, el guardado y la continuación. Sirve el archivo en el puerto 3108, corta la conexión después de la carga y comprueba que no se pidan recursos externos. La política del Chromium administrado impide navegar a `file://`; la apertura directa desde el sistema de archivos no pudo verificarse aquí.
 
 Las pruebas del navegador usan `/usr/bin/chromium` si existe, o el navegador instalado por Playwright. En otra máquina, ejecutar `npx playwright install chromium` antes de las pruebas. Se puede indicar un ejecutable con `CHROMIUM_PATH` y cambiar el puerto de prueba con `TEST_PORT`.
@@ -108,7 +112,7 @@ Las pruebas del navegador usan `/usr/bin/chromium` si existe, o el navegador ins
 
 - [Diseño de la aventura](docs/diseno-juego.md).
 - [Lámina visual aprobada](docs/propuesta-visual.png).
-- `src/engine.js`: reglas y estado del juego, independiente del dibujo y del navegador.
+- `src/engine.js`: reglas y estado del juego, independiente del dibujo y del navegador; construcciones de roca, guardianes temporales y clones autónomos.
 - `src/content.js`: pantallas, diálogos, acertijos y poderes.
 - `src/art.js`: personajes y escenarios dibujados en Canvas, conservando las formas aprobadas.
 - `src/sketch.js`: contornos de lápiz, rellenos a rayitas y grano de papel; las marcas se reutilizan para que el trazo permanezca estable al animarse.

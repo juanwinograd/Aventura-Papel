@@ -1,5 +1,6 @@
 import { build } from 'esbuild';
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
 import { ILLUSTRATION_FILES } from '../src/illustration-files.js';
 
 const root=new URL('../',import.meta.url);
@@ -7,7 +8,7 @@ const illustrationData={};
 for(const [theme,file] of Object.entries(ILLUSTRATION_FILES)){
   illustrationData[theme]='data:image/webp;base64,'+(await readFile(new URL(file,root))).toString('base64');
 }
-const { outputFiles }=await build({entryPoints:[new URL('src/app.js',root).pathname],bundle:true,write:false,format:'iife',target:['es2022'],minify:true,legalComments:'inline',define:{__PAPER_ASSETS__:JSON.stringify(illustrationData)}});
+const { outputFiles }=await build({entryPoints:[fileURLToPath(new URL('src/app.js',root))],bundle:true,write:false,format:'iife',target:['es2022'],minify:true,legalComments:'inline',define:{__PAPER_ASSETS__:JSON.stringify(illustrationData)}});
 const font=(await readFile(new URL('assets/PatrickHand-Regular.ttf',root))).toString('base64');
 const css=(await readFile(new URL('src/style.css',root),'utf8')).replace("../assets/PatrickHand-Regular.ttf",`data:font/ttf;base64,${font}`);
 const icon=encodeURIComponent(await readFile(new URL('assets/favicon.svg',root),'utf8'));

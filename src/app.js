@@ -1,5 +1,5 @@
 import { Adventure, distance } from './engine.js';
-import { HEROES, SCENES, SAVE_KEY, COMIC_PAGES } from './content.js';
+import { HEROES, SCENES, SAVE_KEY, COMIC_PAGES, MAX_CLONES } from './content.js';
 import { Illustrator } from './art.js';
 import { Soundtrack } from './audio.js';
 import { illustrationsReady } from './illustrations.js';
@@ -7,7 +7,7 @@ import { illustrationsReady } from './illustrations.js';
 const $=s=>document.querySelector(s);
 const world=$('#world'), modal=$('#modal'), audio=new Soundtrack();
 let saved=null,storageAvailable=true;
-try{const raw=localStorage.getItem(SAVE_KEY);if(raw){saved=JSON.parse(raw);if(![1,2,3,4].includes(saved?.version))saved=null;}}catch{storageAvailable=false;}
+try{const raw=localStorage.getItem(SAVE_KEY);if(raw){saved=JSON.parse(raw);if(![1,2,3,4,5].includes(saved?.version))saved=null;}}catch{storageAvailable=false;}
 export let game=new Adventure(saved);
 const art=new Illustrator(world);
 let started=false,keys=new Set(),last=0,toastTimer=0,lastHero=-1,lastScene=-1,uiTick=0,lastDialog='';
@@ -61,7 +61,8 @@ function sync(){
   if(lastScene!==game.scene){lastScene=game.scene;$('#chapter-number').textContent=String(game.scene+1).padStart(2,'0');$('#chapter-name').textContent=game.definition.title;}
   const all=game.definition.requires,remaining=all.filter(f=>!game.flags[f]);
   const objective=started?(game.scene===7?(game.complete?'¡Aarón se sumó al equipo! Podés elegirlo con 6 en toda la aventura.':game.flags.aaron_unlocked?'Elegí a Aarón con 6 y probá Z mirando a un asistente que camina.':game.flags.time_wind?'El reloj se abrió. Acercate y hablá con Aarón.':game.flags.time_gear?'El engranaje está instalado. Amaral puede mover el molino con viento.':game.flags.time_sun?'Gaspar puede alcanzar el engranaje detrás de la cerca.':game.definition.objective):game.cinematic?(game.cinematic.kind==='fusion'?'Sebástian camina hacia la masa… ¡Fusión!':'El Ancianito los separa y reúne a Vicente con su cuerpo…'):game.scene===4?(game.flags.victory?'¡Vicente volvió! Podés explorar y ayudar a quienes quedaron en el cuartel.':game.flags.heart_fusion?'La fusión volvió. Hablá con el Ancianito para separar a Sebástian y Vicente.':game.flags.heart_power&&game.flags.heart_piece?'Las esencias están listas. Hablá con Sebástian para iniciar la fusión.':game.definition.objective):game.scene<4&&remaining.length===0?'¡Todo listo! Rodeá los peligros y andá a la salida de la derecha.':game.scene===6&&game.complete?'¡Gaspar completó su viñeta! Ya podés elegirlo en toda la aventura.':game.definition.objective):'Detener el apocalipsis… y que todo termine en una fiesta.';
-  $('#objective').textContent=objective;$('#objective').classList.toggle('hud-complete',started&&game.complete);
+  const expansionObjective=!started?null:game.scene===7&&game.complete?'¡Aarón se sumó al equipo! Seguí a la derecha para ayudar a Sebástian en la viñeta 9.':game.scene===8?(game.complete?'¡Sebástian se sumó al equipo! Seguí a la derecha hacia el barranco.':game.flags.quarry_open?'El paso está abierto. Cruzá y hablá con Sebástian.':game.definition.objective):game.scene===9?(game.complete?`¡Benicio se sumó al equipo! 8 para elegirlo · Z para crear clones: ${game.clones.length}/${MAX_CLONES}.`:game.flags.rock_bridge?'Cruzá el puente por el centro y hablá con Benicio.':game.definition.objective):null;
+  $('#objective').textContent=expansionObjective||objective;$('#objective').classList.toggle('hud-complete',started&&game.complete);
   $('#marks').textContent=[1,2,3].map(n=>game.marks.includes(n)?'★':'○').join(' ');
   $('#health').textContent=Array.from({length:3},(_,i)=>i<game.player.health?'♡':'·').join(' ');$('#health').setAttribute('aria-label',`${game.player.health} oportunidades`);
   const context=started?game.context():null;
@@ -74,6 +75,12 @@ function sync(){
     button.querySelector('.power-key').textContent=active?'↩':cd>0?Math.ceil(cd)+'s':powerKeys[i];
     button.setAttribute('aria-disabled',String(!started||cd>0&&!active));button.style.setProperty('--charge',cd>0?((1-cd/HEROES[game.player.hero].powers[i][2])*100)+'%':'0%');
     button.setAttribute('aria-label',`${HEROES[game.player.hero].powers[i][0]}: ${active?'activo, pulsar para cancelar':cd>0?'recargando '+Math.ceil(cd)+' segundos':'listo, tecla '+powerKeys[i]}`);
+    if(game.player.hero===7){
+      const full=game.clones.length>=MAX_CLONES;
+      button.querySelector('.power-key').textContent=`${game.clones.length}/${MAX_CLONES}`;
+      button.setAttribute('aria-disabled',String(!started||full));
+      button.setAttribute('aria-label',`Clonarse: ${game.clones.length} de ${MAX_CLONES} clones vivos. ${full?'Esperá a que caiga uno.':'Listo, tecla Z, sin recarga.'}`);
+    }
   });
   const dialogue=game.dialog[0];$('#bubble').hidden=!started||!dialogue;
   const key=dialogue?dialogue.join('|'):'';
@@ -88,6 +95,8 @@ modal.addEventListener('close',()=>{game.running=started;keys.clear();});
 $('#close-modal').addEventListener('click',closeModal);
 function help(){
   showModal(`<h2>${started?'Una pausa entre viñetas':'Pequeña guía de superpoderes'}</h2><p>Explorá, hablá con los personajes y combiná poderes. Cada héroe tiene una solución distinta. Las puertas se abren cuando resolvés los acertijos de la viñeta.</p><div class="controls-grid"><div><strong>Moverte</strong><p>Flechas o W A S D.<br>También podés hacer clic en el suelo.</p></div><div><strong>Cambiar de personaje</strong><p>1 Vicente · 2 Fabrizio · 3 Luca${game.flags.gaspar_unlocked?' · 4 Gaspar':''}${game.flags.amaral_unlocked?' · 5 Amaral':''}${game.flags.aaron_unlocked?' · 6 Aarón Mamani':''}.<br>O elegí su tarjeta.</p></div><div><strong>Poderes</strong><p>Z · X · C · V, o sus botones.<br>Mirá al objetivo antes de lanzar.</p></div><div><strong>Interactuar</strong><p>E o Espacio para hablar, recoger regalos y avanzar. Los regalos se abren con E al llevarlos; junto a un mecanismo, E los coloca.</p></div></div><p>Al recibir tres golpes volvés al punto de control. <b>La masa rosa te absorbe de inmediato, incluso con un escudo.</b> Crece al avanzar de viñeta, sin reloj. En el borde, Vicente debe teletransportarse al otro lado cuando la placa y el robot estén resueltos. El láser de la calle solo deja pasar a Fabrizio invisible. Lo que resolviste queda resuelto. Pedí <b>Una pista</b> cuando quieras. Los poderes se recargan solos, también al cambiar de héroe.</p><label class="volume-control">Volumen <input id="volume" type="range" min="0" max="1" step="0.05" value="${audio.volume}"></label><label class="volume-control"><input id="reduced" type="checkbox" ${art.reduced?'checked':''}> Reducir movimiento</label>${started?'<button id="resume" class="primary-button">Volver a la aventura →</button><button id="restart-screen" class="danger-button">Volver al punto de control</button>':''}<p class="credit-note">Una aventura nacida en una historieta de verdad.</p>`);
+  $('#modal-content .controls-grid>div:nth-child(2) p').textContent=HEROES.map((h,i)=>!h.unlock||game.flags[h.unlock]?`${i+1} ${h.name}`:null).filter(Boolean).join(' · ')+'. O elegí su tarjeta.';
+  if(game.flags.sebastian_unlocked||game.flags.benicio_unlocked){const p=document.createElement('p');p.textContent='Z de Sebástian construye el puente junto a las rocas o muros que frenan disparos. Z de Benicio crea hasta siete clones autónomos, sin recarga: si cae uno podés reemplazarlo de inmediato.';$('#modal-content').append(p);}
   $('#volume').addEventListener('input',e=>audio.volume=Number(e.target.value));$('#reduced').addEventListener('change',e=>art.reduced=e.target.checked);
   $('#resume')?.addEventListener('click',closeModal);$('#restart-screen')?.addEventListener('click',()=>{closeModal();game.enter(game.scene,false);toast('Punto de control restaurado. Lo resuelto sigue resuelto.');});
 }
@@ -120,9 +129,9 @@ window.addEventListener('keydown',e=>{
   if(e.key==='Escape'&&!modal.open&&started){e.preventDefault();help();return;}
   if(modal.open||!started||['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName))return;
   const key=e.key.toLowerCase();
-  if(['arrowup','arrowdown','arrowleft','arrowright',' ','w','a','s','d','e','z','x','c','v','1','2','3','4','5','6'].includes(key))e.preventDefault();
+  if(['arrowup','arrowdown','arrowleft','arrowright',' ','w','a','s','d','e','z','x','c','v','1','2','3','4','5','6','7','8'].includes(key))e.preventDefault();
   keys.add(key);if(e.repeat)return;audio.unlock();
-  if(['1','2','3','4','5','6'].includes(key))selectHero(Number(key)-1);
+  if(['1','2','3','4','5','6','7','8'].includes(key))selectHero(Number(key)-1);
   if(key==='e'||key===' '){game.interact();sync();}
   if(['z','x','c','v'].includes(key)){game.use(['z','x','c','v'].indexOf(key));sync();}
 });
