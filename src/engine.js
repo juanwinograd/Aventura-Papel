@@ -1,4 +1,4 @@
-import { HEROES, SCENES, FLAG_NAMES, MASS_AREAS, STREET_LASER, WEATHER_DURATIONS, TEMPORAL_BUBBLE } from './content.js';
+import { HEROES, SCENES, FLAG_NAMES, MASS_AREAS, STREET_LASER, WEATHER_DURATIONS, TEMPORAL_BUBBLE, ROCK_BRIDGE, MAX_CLONES } from './content.js';
 
 export const distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
@@ -13,12 +13,12 @@ export class Adventure {
     this.enter(this.scene??0, false);
   }
   restore(saved) {
-    if(!saved || ![1,2,3,4].includes(saved.version)) return;
+    if(!saved || ![1,2,3,4,5].includes(saved.version)) return;
     const ints=(arr,allowed)=>Array.isArray(arr)?[...new Set(arr.filter(n=>Number.isInteger(n)&&allowed.includes(n)))]:[];
     for(const key of FLAG_NAMES) if(saved.flags?.[key]===true) this.flags[key]=true;
     this.marks=ints(saved.marks,[1,2,3]);
     this.seen=ints(saved.seen,SCENES.map((_,i)=>i));
-    this.used=Array.isArray(saved.used)?[...new Set(saved.used.filter(p=>typeof p==='string'&&/^[0-5]-[0-3]$/.test(p)&&HEROES[Number(p[0])].powers[Number(p[2])]))]:[];
+    this.used=Array.isArray(saved.used)?[...new Set(saved.used.filter(p=>typeof p==='string'&&/^[0-7]-[0-3]$/.test(p)&&HEROES[Number(p[0])].powers[Number(p[2])]))]:[];
     // Existing victories stay victories when the new ending is installed.
     if(saved.version===1&&this.flags.victory){this.flags.heart_fusion=true;this.flags.heart_restored=true;}
     this.maxScene=0;
@@ -29,11 +29,17 @@ export class Adventure {
     if(this.marks.length!==3)delete this.flags.gaspar_unlocked;
     if(!this.flags.gaspar_unlocked)delete this.flags.amaral_unlocked;
     if(!['amaral_unlocked','time_sun','time_gear','time_wind'].every(f=>this.flags[f]))delete this.flags.aaron_unlocked;
+    if(!this.flags.aaron_unlocked)delete this.flags.time_bubble;
+    if(!this.flags.time_bubble)delete this.flags.quarry_open;
+    if(!this.flags.quarry_open)delete this.flags.sebastian_unlocked;
+    if(!this.flags.sebastian_unlocked)delete this.flags.rock_bridge;
+    if(!this.flags.rock_bridge)delete this.flags.bridge_crossed;
+    if(!this.flags.bridge_crossed)delete this.flags.benicio_unlocked;
     this.scene=this.canEnter(saved.scene)?saved.scene:0;
     this.player.hero=Number.isInteger(saved.hero)?clamp(saved.hero,0,HEROES.length-1):0;
     if(HEROES[this.player.hero].unlock&&!this.flags[HEROES[this.player.hero].unlock])this.player.hero=0;
   }
-  serialize() { return {version:4,scene:this.scene,maxScene:this.maxScene,hero:this.player.hero,flags:{...this.flags},marks:[...this.marks],used:[...this.used],seen:[...this.seen]}; }
+  serialize() { return {version:5,scene:this.scene,maxScene:this.maxScene,hero:this.player.hero,flags:{...this.flags},marks:[...this.marks],used:[...this.used],seen:[...this.seen]}; }
   emit(type,detail) { this.events.push({type,detail}); }
   toast(text) { this.emit('toast',text); }
   flag(key) {
@@ -61,6 +67,7 @@ export class Adventure {
     this.player.face={x:1,y:0};
     this.gift=null; this.invisible=0; this.shield=0; this.small=false; this.cube=null; this.party=0;this.partyBuried=0;this.storm=0; this.invulnerable=1;
     this.bullets=[];this.bombs=[];this.effects=[];this.target=null;this.dialog=[];this.escortTime=0;this.cinematic=null;this.pendingAction=null;this.weather=null;
+    this.clones=[];this.cloneSerial=0;this.constructions=[];
     if(scene===4&&this.flags.heart_fusion){const s=this.objects.find(o=>o.id==='sebastian');s.x=560;s.y=365;s.character=this.flags.heart_restored?'sebastian':'fusion';}
     if(scene===6){this.flag('gaspar_unlocked');this.player.hero=3;}
     if(intro&&this.running)this.intro();
@@ -70,6 +77,7 @@ export class Adventure {
   select(hero) {
     if(!Number.isInteger(hero)||!HEROES[hero]||hero===this.player.hero)return false;
     if(this.cinematic)return false;
+    if(hero>=6&&!this.flags[HEROES[hero].unlock]){this.toast(hero===6?'Sebástian espera en la cantera de la viñeta 9. Aarón puede ayudarlo.':'Benicio espera del otro lado del puente de la viñeta 10.');return false;}
     if(HEROES[hero].unlock&&!this.flags[HEROES[hero].unlock]){this.toast(hero===5?'Aarón está en el jardín de las horas perdidas. Amaral y Gaspar pueden encontrarlo.':hero===4?'Amaral está en el cofre del cuartel. Gaspar puede ayudarla.':'Gaspar se esconde en el nivel secreto. Encontrá las tres estrellas.');return false;}
     if(this.small&&!this.safe(this.player.x,this.player.y,false)){this.toast('Primero salí del pasadizo con Luca.');return false;}
     this.player.hero=hero;this.small=false;this.shield=0;this.invisible=0;this.partyBuried=0;
@@ -80,6 +88,8 @@ export class Adventure {
     if(this.scene===2&&x>493&&x<548&&!(small&&y>329&&y<369))return false;
     if(this.scene===6&&!this.flags.secret_reach&&x>540)return false;
     if(this.scene===7&&x>650&&x<730&&y<285)return false;
+    if(this.scene===8&&!this.flags.quarry_open&&x>590&&x<640)return false;
+    if(this.scene===9&&x>ROCK_BRIDGE.left&&x<ROCK_BRIDGE.right&&(!this.flags.rock_bridge||y<ROCK_BRIDGE.top||y>ROCK_BRIDGE.bottom))return false;
     if(this.scene===1&&this.invisible<=0&&Math.abs(x-STREET_LASER.x)<STREET_LASER.halfWidth)return false;
     return true;
   }
@@ -138,7 +148,7 @@ export class Adventure {
       const candidates=crossing?[{x:880,y:455},{x:885,y:460}]:[{x:125,y:440},{x:210,y:260},{x:415,y:450},{x:810,y:460},{x:865,y:270}];
       const positions=candidates.filter(p=>this.safe(p.x,p.y,false)&&!this.hazard(p.x,p.y)&&distance(p,this.player)>100);
       // A wall may never be skipped by a teleport, even if its destination is safe.
-      const reachable=positions.filter(p=>(this.scene!==2||((p.x<493)===(this.player.x<493)))&&(this.scene!==1||((p.x<STREET_LASER.x)===(this.player.x<STREET_LASER.x)))&&(!this.mass||this.scene!==3||crossing||((p.x<735)===(this.player.x<735))));
+      const reachable=positions.filter(p=>(this.scene!==2||((p.x<493)===(this.player.x<493)))&&(this.scene!==1||((p.x<STREET_LASER.x)===(this.player.x<STREET_LASER.x)))&&(this.scene!==8||this.flags.quarry_open||((p.x<590)===(this.player.x<590)))&&(this.scene!==9||this.flags.bridge_crossed||((p.x<ROCK_BRIDGE.left)===(this.player.x<ROCK_BRIDGE.left)))&&(!this.mass||this.scene!==3||crossing||((p.x<735)===(this.player.x<735))));
       if(!reachable.length){this.toast('No hay otro lugar seguro al que saltar.');return false;}
       this.effect('puf',this.player,0.7);const p=reachable[Math.floor(this.random()*reachable.length)];
       this.player.x=p.x;this.player.y=p.y;this.invulnerable=2;this.target=null;
@@ -204,6 +214,24 @@ export class Adventure {
       target.bubble=TEMPORAL_BUBBLE.duration;
       if(this.scene===7&&target.patrol)this.flag('time_bubble');
       this.toast('¡Burbuja temporal! Adentro, todo va más lento.');
+    } else if(h===6&&index===0){
+      target=this.aimTarget(['build-site'],155,true);
+      if(target&&!this.flags[target.flag]){
+        this.flag(target.flag);this.effect('rocks',target,1.5);this.toast('¡Puente construido! Cruzá por las rocas del centro y hablá con Benicio.');
+      } else {
+        const point={x:this.player.x+this.player.face.x*65,y:this.player.y+this.player.face.y*65};
+        if(!this.safe(point.x,point.y,false)||this.hazard(point.x,point.y)){this.toast('Buscá suelo firme para construir con las rocas.');return false;}
+        this.constructions.push({...point,time:10,hits:3});
+        if(this.constructions.length>3)this.constructions.shift();
+        this.effect('rocks',point,1);this.toast('¡Muro de rocas! Frena tres disparos y dura diez segundos.');
+      }
+    } else if(h===7&&index===0){
+      if(this.clones.length>=MAX_CLONES){this.toast('¡Ya hay siete clones! Cuando caiga uno podés crear otro enseguida.');return false;}
+      const offsets=[...Array.from({length:8},(_,i)=>{const a=(this.cloneSerial+i)*Math.PI/4;return {x:Math.cos(a)*34,y:Math.sin(a)*34};}),{x:0,y:0}];
+      const point=offsets.map(o=>({x:this.player.x+o.x,y:this.player.y+o.y})).find(p=>this.safe(p.x,p.y,false)&&!this.hazard(p.x,p.y));
+      if(!point){this.toast('Buscá un lugar seguro para crear un clon.');return false;}
+      this.clones.push({...point,id:++this.cloneSerial,health:1,attack:0,direction:this.cloneSerial%2?1:-1});
+      this.effect('puf',point,.5);this.toast(`¡Un Benicio más! ${this.clones.length} de ${MAX_CLONES} clones.`);
     }
     this.cooldowns[h][index]=power[2];
     const key=`${h}-${index}`;if(!this.used.includes(key))this.used.push(key);
@@ -224,7 +252,9 @@ export class Adventure {
       return {type:'gift',text:slot?`Colocar en ${slot.name.toLowerCase()}`:'Abrir el regalo',object:slot};
     }
     if(this.gift&&!this.gift.placed&&distance(this.player,this.gift)<85)return {type:'pickup',text:'Recoger el regalo'};
-    if(this.player.x>848&&this.scene<4)return {type:'exit',text:'Ir a la siguiente viñeta'};
+    if(this.player.x>848&&(this.scene<4||[7,8].includes(this.scene)&&this.complete))return {type:'exit',text:'Ir a la siguiente viñeta'};
+    const special=this.aimTarget(['temporal-gate','build-site'],90);
+    if(special)return {type:'object',text:`Examinar ${special.name.toLowerCase()}`,object:special};
     const o=(this.scene===7&&this.aimTarget(['npc'],90))||this.aimTarget(['npc','escort','secret-door','time-door','slot','plate','electric','scanner','target','piece','antenna','turret','distant','chest','solar','windmill','clock'],90);
     if(o)return {type:'object',text:['secret-door','time-door'].includes(o.type)?'Investigar el dibujo':o.type==='npc'||o.type==='escort'?`Hablar con ${o.name}`:`Examinar ${o.name.toLowerCase()}`,object:o};
     return null;
@@ -249,7 +279,24 @@ export class Adventure {
     }
     if(action.type==='exit'){this.next();return;}
     const o=action.object;
-    if(o.type==='time-door'){this.enter(7);
+    if(o.type==='temporal-gate'){
+      if(this.flags.quarry_open)this.toast('¡El cerrojo ya está abierto! Sebástian te espera del otro lado.');
+      else if(this.objects.filter(o=>o.temporalGuardian).every(o=>!o.inGift&&o.bubble>0)){
+        this.flag('quarry_open');this.effect('star',o,1);this.toast('¡Abierto! Las burbujas nos dieron tiempo. Cruzá y hablá con Sebástian.');
+      } else this.toast('Los dos guardianes deben estar en burbujas temporales al mismo tiempo.');
+    } else if(this.scene===8&&o.id==='sebastian'){
+      if(!this.flags.quarry_open){this.toast('Primero hay que abrir el cerrojo con ayuda de Aarón.');return;}
+      this.flag('sebastian_unlocked');this.target=null;
+      this.dialog=[['Sebástian','¡Gracias, Aarón! Ya pueden elegirme con 7 en cualquier viñeta. Con Z construyo cosas con rocas.'],['Sebástian','Del otro lado hay un barranco. ¡Vamos a construir un puente para llegar hasta Benicio! Seguí a la derecha.']];
+      this.emit('sound','secret');
+    } else if(o.type==='build-site'){
+      this.toast(this.flags.rock_bridge?'¡El puente está listo! Cruzá por el centro.':'Sebástian puede construir un puente con estas rocas. Elegilo con 7, mirá las rocas y usá Z.');
+    } else if(this.scene===9&&o.id==='benicio'){
+      if(!this.flags.bridge_crossed||this.player.x<ROCK_BRIDGE.right){this.toast('Construí y cruzá el puente para llegar a Benicio.');return;}
+      this.flag('benicio_unlocked');this.target=null;
+      this.dialog=[['Benicio','¡Gracias por el puente! Ya pueden elegirme con 8 en toda la aventura.'],['Benicio','Cada Z crea un clon que se mueve y pelea solo. ¡Puedo tener siete a la vez! No hay recarga: si matan a uno, podés crear otro enseguida.']];
+      this.emit('sound','secret');
+    } else if(o.type==='time-door'){this.enter(7);
     } else if(this.scene===7&&o.id==='aaron'){
       this.flag('aaron_unlocked');this.target=null;
       this.dialog=[['Aarón Mamani','¡Gracias, Amaral y Gaspar! Estaba esperando un minuto… ¡que no terminaba nunca! Ahora pueden elegirme con 6 en toda la aventura.'],['Aarón Mamani','Con Z encierro personas en burbujas temporales. Se mueven y actúan mucho más despacio. ¡Probemos con un asistente que camina!']];
@@ -289,6 +336,7 @@ export class Adventure {
   }
   next() {
     if(!this.complete){this.toast('Todavía hay algo por resolver. Pedí una pista si la necesitás.');return false;}
+    if([7,8].includes(this.scene))return this.enter(this.scene+1);
     if(this.scene<5){this.maxScene=Math.max(this.maxScene,this.scene+1);if(this.scene===4)this.flag('victory');return this.enter(this.scene+1);}
     return false;
   }
@@ -315,6 +363,29 @@ export class Adventure {
     if(this.player.health<=0){this.enter(this.scene,false);this.toast('¡PLOP! Volviste al punto de control. Lo resuelto sigue resuelto.');}
     else this.toast('¡Ups! Quedan '+this.player.health+' oportunidades.');
   }
+  updateClones(dt){
+    for(const clone of this.clones){
+      clone.attack=Math.max(0,clone.attack-dt);
+      if(this.hazard(clone.x,clone.y)){clone.health=0;this.effect('puf',clone,.5);continue;}
+      const enemy=this.objects.filter(o=>o.type==='enemy'&&!o.inGift&&!this.disabled(o)&&o.prism<=0).sort((a,b)=>distance(a,clone)-distance(b,clone))[0];
+      let dx=clone.direction,dy=Math.sin(this.time+clone.id)*.35;
+      if(enemy){dx=enemy.x-clone.x;dy=enemy.y-clone.y;}
+      const goalDistance=Math.hypot(dx,dy)||1;
+      dx/=goalDistance;dy/=goalDistance;
+      if(enemy&&goalDistance<36){dx=0;dy=0;}
+      // Give each clone room, even when several approach the same assistant.
+      for(const other of [this.player,...this.clones]){
+        if(other===clone)continue;const apart=distance(clone,other);
+        if(apart>0&&apart<38){const push=(38-apart)/38*1.8;dx+=(clone.x-other.x)/apart*push;dy+=(clone.y-other.y)/apart*push;}
+      }
+      const d=Math.hypot(dx,dy)||1,speed=110;
+      const x=clone.x+dx/d*speed*dt,y=clone.y+dy/d*speed*dt;
+      if(this.safe(x,clone.y,false)&&!this.hazard(x,clone.y))clone.x=x;else clone.direction*=-1;
+      if(this.safe(clone.x,y,false)&&!this.hazard(clone.x,y))clone.y=y;
+      if(enemy&&distance(clone,enemy)<48&&clone.attack<=0){this.hitEnemy(enemy,'clone');clone.attack=1.2;this.effect('clone-hit',enemy,.5);}
+    }
+    this.clones=this.clones.filter(c=>c.health>0);
+  }
   update(dt,move={x:0,y:0}) {
     if(!this.running||this.dialog.length)return;
     dt=clamp(dt,0,0.05);this.time+=dt;
@@ -330,7 +401,11 @@ export class Adventure {
       if(Math.hypot(dx,dy)<6)this.target=null;else this.move(dx,dy,dt);
     } else this.move(move.x,move.y,dt);
     if(this.scene===1&&this.invisible>0&&beforeX<STREET_LASER.x&&this.player.x>=STREET_LASER.x)this.flag('street_sneak');
+    if(this.scene===9&&this.flags.rock_bridge&&beforeX<=ROCK_BRIDGE.right&&this.player.x>ROCK_BRIDGE.right)this.flag('bridge_crossed');
     if(this.massContact(this.player.x,this.player.y)){this.consumed();return;}
+    for(const rock of this.constructions)rock.time-=dt;
+    this.constructions=this.constructions.filter(r=>r.time>0&&r.hits>0);
+    this.updateClones(dt);
     if(this.gift?.carried){this.gift.x=this.player.x+22;this.gift.y=this.player.y-30;}
     for(const o of this.objects) {
       o.prism=Math.max(0,o.prism-dt);o.stun=Math.max(0,o.stun-dt);o.bubble=Math.max(0,o.bubble-dt);
@@ -342,14 +417,19 @@ export class Adventure {
       if(!['turret','enemy'].includes(o.type)||this.disabled(o)||o.inGift||o.prism>0||o.stun>0)continue;
       if(o.patrol){if(o.x<=o.patrol.from)o.direction=1;if(o.x>=o.patrol.to)o.direction=-1;o.x+=o.patrol.speed*dt*rate*o.direction;}
       o.shot-=dt*rate;
-      if(o.shot<=0&&!this.concealed&&distance(o,this.player)<510) {
-        const d=distance(o,this.player)||1;
-        this.bullets.push({x:o.x,y:o.y-10,vx:(this.player.x-o.x)/d*140,vy:(this.player.y-o.y)/d*140,source:o.id,reflected:false,life:7});o.shot=3.5;
+      const victim=[this.player,...this.clones].sort((a,b)=>distance(o,a)-distance(o,b))[0];
+      if(o.shot<=0&&!this.concealed&&distance(o,victim)<510) {
+        const d=distance(o,victim)||1;
+        this.bullets.push({x:o.x,y:o.y-10,vx:(victim.x-o.x)/d*140,vy:(victim.y-o.y)/d*140,source:o.id,reflected:false,life:7});o.shot=3.5;
       }
     }
     for(const b of this.bullets) {
       if(this.weather?.kind==='wind'&&!b.reflected){b.vx+=220*dt;b.vy-=140*dt;}
       b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt;
+      if(b.life<=0)continue;
+      const rock=!b.reflected&&this.constructions.find(r=>r.hits>0&&distance(b,r)<38);
+      if(rock){rock.hits--;b.life=0;this.effect('rocks',rock,.4);continue;}
+      const clone=!b.reflected&&this.clones.find(c=>c.health>0&&distance(b,c)<25);
       if(!b.reflected&&this.cube&&distance(b,this.cube)<52) {
         const source=this.objects.find(o=>o.id===b.source);const d=distance(b,source)||1;
         b.vx=(source.x-b.x)/d*240;b.vy=(source.y-b.y)/d*240;b.reflected=true;this.effect('bounce',b,0.6);this.emit('sound','bounce');
@@ -358,9 +438,11 @@ export class Adventure {
         const source=this.objects.find(o=>o.id===b.source);
         if(distance(b,source)<28){if(source.flag)this.flag(source.flag);else source.stun=6;b.life=0;this.toast('¡Rebotó!');}
       } else if(this.shield>0&&distance(b,this.player)<125){b.life=0;this.effect('bounce',b,0.5);}
+      else if(clone){clone.health=0;b.life=0;this.effect('puf',clone,.6);}
       else if(distance(b,this.player)<22){if(!this.objects.find(o=>o.id===b.source)?.practice)this.hurt();else this.toast('Era de práctica. Probá devolverlo con un cubo.');b.life=0;}
     }
     this.bullets=this.bullets.filter(b=>b.life>0);
+    this.clones=this.clones.filter(c=>c.health>0);
     for(const bomb of this.bombs){
       bomb.elapsed+=dt;bomb.x+=bomb.vx*dt;bomb.y+=bomb.vy*dt;
       if(bomb.elapsed>=bomb.duration){this.effect('explosion',bomb,1.2);this.emit('sound','bounce');for(const o of this.objects)if(o.type==='enemy'&&distance(o,bomb)<110)this.hitEnemy(o,'potato');}

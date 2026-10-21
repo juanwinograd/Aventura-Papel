@@ -5,6 +5,8 @@ export const HEROES = [
   { id:'gaspar', name:'Gaspar', color:'#08afce', dark:'#08778d', trait:'El hermano que llega más lejos', unlock:'gaspar_unlocked', powers:[['Brazo elástico','Alcanzá objetos que están muy lejos.',3,'↔'],['Superpuño','Un golpe enorme contra los enemigos cercanos.',3,'✊'],['Teletransportarse','Saltá a un lugar seguro al azar.',8,'↝'],['Papapumba','Lanzá una papa explosiva. ¡PUM!',5,'●']] },
   { id:'amaral', name:'Amaral', color:'#ef3b50', dark:'#ac2436', trait:'El clima está de su lado', unlock:'amaral_unlocked', powers:[['Neblina','Ocultá al equipo de los enemigos durante seis segundos.',10,'≋'],['Soleado','Despejá la neblina e iluminá toda la viñeta.',8,'☀'],['Viento','Desviá los disparos enemigos con ráfagas de viento.',9,'↠']] },
   { id:'aaron', name:'Aarón Mamani', color:'#13ad9d', dark:'#08786e', trait:'Tiene todo el tiempo del mundo', unlock:'aaron_unlocked', powers:[['Burbuja temporal','Encerrá a una persona en una burbuja: se mueve y actúa más lento.',5,'◴']] },
+  { id:'sebastian', name:'Sebástian', color:'#625144', dark:'#44382e', trait:'Una idea firme como una roca', unlock:'sebastian_unlocked', powers:[['Construir con rocas','Armá un puente donde haga falta, o un muro que frene disparos.',4,'◆']] },
+  { id:'benicio', name:'Benicio', color:'#235acb', dark:'#173d92', trait:'¡Uno para todos y siete más!', unlock:'benicio_unlocked', powers:[['Clonarse','Creá hasta siete clones que caminan y pelean solos. Sin recarga.',0,'⑦']] },
 ];
 
 const headquartersGuests=[
@@ -73,6 +75,19 @@ export const SCENES = [
     {id:'time-guard1',type:'enemy',name:'Asistente apurado',x:470,y:420,patrol:{from:430,to:650,speed:28}},
     {id:'time-guard2',type:'enemy',name:'Asistente sin reloj',x:795,y:445,patrol:{from:735,to:860,speed:24}},
   ] },
+  { title:'La cantera a destiempo', unlock:'time_bubble', subtitle:'A veces, la mejor ayuda es ir más despacio.', caption:'Dos guardianes apurados y un amigo detrás de las rocas.', theme:'quarry', requires:['quarry_open','sebastian_unlocked'], objective:'Usá las burbujas de Aarón para frenar a los dos guardianes y liberar a Sebástian.', hint:'Elegí a Aarón con 6. Desde la izquierda, encerrá a un guardián con Z. Mientras recarga, acercate al otro: las burbujas duran siete segundos y la recarga es de cinco. Encerrá al segundo y pulsá E junto al cerrojo mientras ambos sigan en sus burbujas. Después cruzá y hablá con Sebástian.', intro:[['Sebástian','¡Estoy del otro lado! Los guardianes cierran el cerrojo demasiado rápido.'],['Aarón Mamani','Si los dos quedan en mis burbujas al mismo tiempo, vamos a tener tiempo para abrirlo.']], objects:[
+    {id:'guide',type:'npc',name:'Ancianito',character:'anciano',x:170,y:280,dialog:[['Ancianito','Las burbujas duran siete segundos; recargan en cinco. Encerrá a uno, preparate junto al otro y después abrí el cerrojo con E mientras ambos vayan despacio.']]},
+    {id:'quarry-guard1',type:'enemy',name:'Guardián de arriba',x:500,y:350,temporalGuardian:true,patrol:{from:470,to:530,speed:24}},
+    {id:'quarry-guard2',type:'enemy',name:'Guardián de abajo',x:510,y:430,temporalGuardian:true,patrol:{from:480,to:540,speed:26}},
+    {id:'quarry-gate',type:'temporal-gate',name:'Cerrojo de la cantera',x:600,y:390,flag:'quarry_open'},
+    {id:'sebastian',type:'npc',name:'Sebástian',character:'sebastian',x:790,y:390,hiddenAfter:'sebastian_unlocked'},
+  ] },
+  { title:'El puente de los siete', unlock:'sebastian_unlocked', subtitle:'De roca en roca, el equipo se agranda.', caption:'Un puente para llegar. ¡Siete amigos iguales para volver!', theme:'bridge', requires:['rock_bridge','bridge_crossed','benicio_unlocked'], objective:'Construí un puente con Sebástian, cruzalo y hablá con Benicio.', hint:'Elegí a Sebástian con 7 y acercate al montón de rocas junto al barranco. Miralo y usá Z para construir el puente. Cruzá por el centro y hablá con Benicio usando E. Elegilo con 8: cada Z crea un clon autónomo, hasta siete vivos. No hay recarga y podés reemplazar al que caiga.', intro:[['Benicio','¡Hola! Estoy acá, del otro lado. ¡Tengo muchas ganas de sumarme!'],['Sebástian','Con esas rocas puedo construir un puente. ¡Manos a la piedra!']], objects:[
+    {id:'bridge-site',type:'build-site',name:'Rocas para el puente',x:415,y:390,flag:'rock_bridge'},
+    {id:'benicio',type:'npc',name:'Benicio',character:'benicio',x:790,y:390,hiddenAfter:'benicio_unlocked'},
+    {id:'clone-guard1',type:'enemy',name:'Asistente del otro lado',x:740,y:280,defeatable:true,patrol:{from:700,to:830,speed:25}},
+    {id:'clone-guard2',type:'enemy',name:'Asistente del margen',x:840,y:455,defeatable:true,patrol:{from:750,to:875,speed:30}},
+  ] },
 ];
 export const FLAG_NAMES = [...new Set([...SCENES.flatMap(s=>s.requires), 'victory','secret_open','gaspar_unlocked','amaral_unlocked'])];
 export const WIDTH=960, HEIGHT=540;
@@ -86,6 +101,8 @@ export const MASS_AREAS={
 export const STREET_LASER={x:530,halfWidth:9,top:235,bottom:477};
 export const WEATHER_DURATIONS={fog:6,sun:6,wind:5};
 export const TEMPORAL_BUBBLE={duration:7,rate:.25,reach:250};
+export const ROCK_BRIDGE={left:455,right:655,top:350,bottom:420};
+export const MAX_CLONES=7;
 export const COMIC_PAGES=[
   {file:'00_Tapa.jpg',label:'Tapa'},
   ...Array.from({length:12},(_,i)=>({file:`${String(i+1).padStart(2,'0')}_Pagina.jpg`,label:`Página ${i+1}`})),

@@ -140,7 +140,7 @@ Antes de producir las animaciones se revisará una lámina conceptual de los pro
 
 1. Se puede completar la aventura de principio a fin en el navegador, sin instalación ni cuenta.
 2. Cambiar entre los tres personajes es necesario y comprensible; ningún acertijo queda bloqueado por el personaje elegido.
-3. Los 19 poderes se pueden usar al desbloquear a Gaspar, Amaral y Aarón; cada uno tiene una oportunidad clara de demostración, incluida la fiesta decorativa.
+3. Los 21 poderes se pueden usar al desbloquear a Gaspar, Amaral, Aarón, Sebástian y Benicio; cada uno tiene una oportunidad clara de demostración, incluida la fiesta decorativa.
 4. El teletransporte siempre lleva a un lugar seguro y no resuelve por azar un acertijo obligatorio.
 5. Los regalos conservan su contenido; abrirlos, moverlos y reiniciar no permite perder piezas esenciales.
 6. El campo de fuerza protege al NPC y la invisibilidad permite atacar sin ser detectado durante su duración.
@@ -149,6 +149,16 @@ Antes de producir las animaciones se revisará una lámina conceptual de los pro
 9. Las figuras y los escenarios recuerdan a la historieta y la familia revisa la propuesta visual antes de animar.
 10. La aventura da espacio a explorar, usa pistas opcionales y termina con rescate y fiesta.
 11. Vicente y Luca flotan sin piernas en todas sus poses. Luca tiene un solo pelo doblado, sin rulos ni espirales. Fabrizio conserva exactamente un resorte de pelo, uno de pierna y dos de brazos.
+
+## Viñetas 9 y 10: rocas y clones
+
+Después de completar la prueba de burbuja en el jardín, la salida derecha lleva a la cantera. Dos guardianes patrullan junto al cerrojo: solo se puede abrir con E mientras ambos estén en burbujas temporales. Las burbujas duran siete segundos y recargan en cinco; hay una ventana de dos segundos para combinar ambas y abrir. Prismas, aturdimientos, regalos, invisibilidad y teletransporte no reemplazan este acertijo. Una vez abierto, queda resuelto aunque se pierda. Hablar con Sebástian lo incorpora al equipo con 7.
+
+Sebástian conserva su figura marrón y su pelo de resorte del juego. Su Z construye con rocas: junto al montón indicado, arma un puente permanente; en suelo firme, levanta un muro temporal que dura diez segundos y frena tres disparos. La recarga es de cuatro segundos y se permiten hasta tres muros a la vez.
+
+La viñeta 10 presenta un barranco que corta todo el suelo. El puente permite cruzar por la franja central. Construirlo y cruzarlo caminando preceden al diálogo que libera a Benicio. Benicio conserva los rasgos de su dibujo: azul, cara circular sin rellenar, dos mechones y cuerpo sin piernas. Se elige con 8 y cada Z crea un clon, hasta siete clones vivos además del original. No hay recarga ni caducidad. Caminan y atacan asistentes de forma autónoma, respetan obstáculos y peligros, y los enemigos pueden dispararles. Un impacto elimina un clon y permite reemplazarlo inmediatamente. No atacan NPC y siguen activos al cambiar de héroe.
+
+Los clones y muros son transitorios: cambiar de viñeta, perder o recargar los elimina. El puente, los acertijos y los héroes desbloqueados se guardan con la versión 5, compatible con las versiones 1 a 4. Los nuevos niveles siguen siendo opcionales y no abren por sí solos las pantallas de la historia principal.
 
 ## Estado de revisión
 
