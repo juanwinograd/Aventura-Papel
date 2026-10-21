@@ -116,7 +116,7 @@ Las pruebas del navegador usan `/usr/bin/chromium` si existe, o el navegador ins
 - `src/content.js`: pantallas, diálogos, acertijos y poderes.
 - `src/art.js`: personajes y escenarios dibujados en Canvas, conservando las formas aprobadas.
 - `src/sketch.js`: contornos de lápiz, rellenos a rayitas y grano de papel; las marcas se reutilizan para que el trazo permanezca estable al animarse.
-- `assets/illustrations/`: fondos del cuartel, la calle, el laboratorio, el borde, el desenlace y los dos niveles secretos, además de versiones del cuartel y la calle después del rescate, junto con la masa rosa transparente. Se generaron tomando el arte aprobado como referencia visual. La fiesta usa el cuartel con la ventana despejada.
+- `assets/illustrations/`: fondos del cuartel, la calle, el laboratorio, el borde, el desenlace, los dos niveles secretos, la cantera y las barrancas, además de versiones del cuartel y la calle después del rescate, junto con la masa rosa transparente. Conservan el trazo a mano, los rellenos a rayitas y el papel claro del arte aprobado. La fiesta usa el cuartel con la ventana despejada.
 - `src/illustration-files.js`: lista de fondos, compartida por la aplicación y el generador del HTML descargable. El generador incluye las imágenes dentro del archivo para conservar el funcionamiento sin conexión.
 - `src/app.js`: interfaz, controles, guardado y lectura de la tapa y las doce páginas de la historieta.
 - `src/audio.js`: efectos breves sintetizados con Web Audio.

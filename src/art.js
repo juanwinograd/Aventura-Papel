@@ -1,4 +1,4 @@
-import { HEROES, WIDTH, HEIGHT, STREET_LASER, ROCK_BRIDGE, MAX_CLONES } from './content.js';
+import { HEROES, WIDTH, HEIGHT, STREET_LASER, ROCK_BRIDGE } from './content.js';
 import { Pencil, paperGrain } from './sketch.js';
 import { illustrations } from './illustrations.js';
 const INK='#393832', PAPER='#fffdf7';
@@ -248,15 +248,16 @@ export class Illustrator {
       if(game.complete)this.text('¡OTRO AMIGO SALIÓ DE LA HISTORIETA!',480,485,26,'#278d7d','center');
     }
     if(theme==='quarry'){
+      if(drawing)this.box(285,104,390,38,PAPER,'#c6bdac',1);
       this.text('LA CANTERA A DESTIEMPO',480,132,28,'#806b50','center');
-      for(let i=0;i<9;i++)this.rock(80+i*100,205+(i%2)*14,28+i%3*4);
+      if(!drawing)for(let i=0;i<9;i++)this.rock(80+i*100,205+(i%2)*14,28+i%3*4);
       for(let i=0;i<6;i++)this.rock(615,245+i*43,22);
       if(game.flags.quarry_open)this.text('¡PASO ABIERTO!',610,220,21,'#498b74','center');
       else {this.line(600,235,600,477,'#94775c',5);this.text('Dos burbujas + E',472,276,22,'#359688','center');}
-      if(game.flags.sebastian_unlocked)this.text('7 · SEBÁSTIAN CONSTRUYE CON ROCAS',480,484,23,'#806b50','center');
     }
     if(theme==='bridge'){
       const b=ROCK_BRIDGE;
+      if(drawing)this.box(285,103,390,38,PAPER,'#c6bdac',1);
       this.text('EL PUENTE DE LOS SIETE',480,131,28,'#42629d','center');
       this.path([[b.left,235],[b.left+12,300],[b.left-5,350],[b.left+9,421],[b.left,478],[b.right,478],[b.right-10,410],[b.right+8,340],[b.right-8,280],[b.right,235]],'#8c8173',3,'#cfc5b7',true);
       for(let i=0;i<6;i++)this.line(478+i*28,250,470+i*29,465,'#b6a997',1);
@@ -265,7 +266,6 @@ export class Illustrator {
         for(let row=0;row<2;row++)for(let i=0;i<6;i++)this.rock(b.left+10+i*35,b.top+26+row*31,20);
         this.text('¡PUENTE LISTO!',555,325,21,'#7a7459','center');
       } else this.text('7 · Z para construir',302,309,23,'#806b50','center');
-      if(game.flags.benicio_unlocked)this.text(`8 · Z: CLONES ${game.clones.length}/${MAX_CLONES} · SIN RECARGA`,480,485,23,'#42629d','center');
     }
     if(!home){this.text('←',55,462,29,'#aaa18f');if(game.scene<4||[7,8].includes(game.scene)&&game.complete)this.exit(game);}
     this.text('PÁG. '+String(game.scene+1).padStart(2,'0'),892,523,16,'#9b927f','right');
