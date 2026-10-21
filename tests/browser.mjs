@@ -16,7 +16,7 @@ try {
   const errors=[],failedResources=[];
   page.on('pageerror',error=>errors.push(error.message));page.on('response',response=>{if(response.status()>=400)failedResources.push(`${response.status()} ${response.url()}`);});
   await page.goto(url);await page.evaluate(async()=>{window.adventureModule=await import('/src/app.js');await window.adventureModule.artworkReady;});
-  assert.equal(await page.evaluate(async()=>(await import('/src/illustrations.js')).illustrations.size),10,'las diez ilustraciones están disponibles');
+  assert.equal(await page.evaluate(async()=>(await import('/src/illustrations.js')).illustrations.size),12,'las doce ilustraciones están disponibles');
   assert.equal(await page.evaluate(async()=>{
     const {Illustrator}=await import('/src/art.js');const canvas=document.createElement('canvas');canvas.width=960;canvas.height=540;
     const illustrator=new Illustrator(canvas);illustrator.reduced=true;const game=window.adventureModule.game;
@@ -140,7 +140,7 @@ try {
   });
   await page.goto(`${url}/Aventura-Papel/`);
   await page.evaluate(async()=>{const app=await import('/Aventura-Papel/src/app.js');await app.artworkReady;});
-  assert.equal(await page.evaluate(async()=>(await import('/Aventura-Papel/src/illustrations.js')).illustrations.size),10,'las ilustraciones cargan con la ruta del proyecto en GitHub Pages');
+  assert.equal(await page.evaluate(async()=>(await import('/Aventura-Papel/src/illustrations.js')).illustrations.size),12,'las ilustraciones cargan con la ruta del proyecto en GitHub Pages');
   await page.getByRole('button',{name:'Continuar mi aventura'}).click();await page.keyboard.press('6');
   assert.equal(await page.locator('#power-owner').textContent(),'AARÓN MAMANI');
   assert.deepEqual(errors,[],'sin errores JavaScript');assert.deepEqual(failedResources,[],'todos los recursos cargan');
