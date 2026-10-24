@@ -10,4 +10,6 @@ export const ILLUSTRATION_FILES={
   streetCalm:'assets/illustrations/calle-tranquila.webp',
   secret:'assets/illustrations/secreto.webp',
   garden:'assets/illustrations/jardin.webp',
+  quarry:'assets/illustrations/cantera.webp',
+  bridge:'assets/illustrations/barrancas.webp',
 };
