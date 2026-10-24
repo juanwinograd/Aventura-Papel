@@ -11,6 +11,7 @@ let saved=null,storageAvailable=true;
 try{const raw=localStorage.getItem(SAVE_KEY);if(raw){saved=JSON.parse(raw);if(![1,2,3,4,5].includes(saved?.version))saved=null;}}catch{storageAvailable=false;}
 export let game=new Adventure(saved);
 const art=new Illustrator(world);
+const touchPortrait=new Illustrator($('#touch-hero-portrait'));
 let started=false,keys=new Set(),last=0,toastTimer=0,lastHero=-1,lastScene=-1,uiTick=0,lastDialog='';
 const powerKeys=['Z','X','C','V'];
 const mobileControls=isMobileTouchDevice(navigator);
@@ -47,6 +48,8 @@ function selectHero(index){if(modal.open)return;game.select(index);lastHero=-1;s
 function powers(){
   const h=HEROES[game.player.hero];$('#power-owner').textContent=h.name.toUpperCase();
   touch.setHero(h);$('#touch-hero-name').textContent=h.name;
+  touchPortrait.c.clearRect(0,0,80,105);touchPortrait.hero(game.player.hero,40,96,.8,0);
+  $('#touch-heroes').setAttribute('aria-label',`Cambiar personaje: ${h.name}`);
   const el=$('#powers');el.style.setProperty('--hero-color',h.color);el.style.setProperty('--hero-dark',h.dark);
   el.replaceChildren(...h.powers.map((p,i)=>{
     const button=document.createElement('button');button.className='power';button.dataset.power=i;
@@ -105,8 +108,6 @@ function sync(){
   });
   const actionName=game.dialog.length?'Seguir':game.cinematic?'Esperá':context?.type==='exit'?'Avanzar':context?.type==='pickup'?'Recoger':context?.type==='gift'?(context.object?'Colocar':'Abrir'):context?.type==='mark'?'Investigar':context?.object?.type==='npc'?'Hablar':context?'Usar':'Interactuar';
   $('#touch-action-name').textContent=actionName;
-  $('#touch-health').textContent=Array.from({length:3},(_,i)=>i<game.player.health?'♡':'·').join('');
-  $('#touch-health').setAttribute('aria-label',`${game.player.health} oportunidades`);
   $('#touch-interact').disabled=!started||modal.open||Boolean(game.cinematic);
   $('#touch-interact').setAttribute('aria-label',context?.text||actionName);
   if(mobileControls){

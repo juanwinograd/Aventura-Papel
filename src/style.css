@@ -49,10 +49,10 @@
 /* The thumb controls are only enabled by phone/tablet detection in app.js. */
 .touch-controls{margin:12px 0 0;padding:8px 10px 14px;border:1px solid #c6bca5;border-radius:6px 3px 9px 4px;background:#fffdf4;user-select:none;-webkit-user-select:none;touch-action:none}
 .touch-tools{display:flex;align-items:center;gap:6px;margin-bottom:12px}
-.touch-health{font:20px var(--hand);color:var(--pink);white-space:nowrap;flex-shrink:0}
 .touch-tool{min-height:44px;padding:5px 10px;font:16px var(--hand);border:1px solid #b8ac91;border-radius:5px 8px 4px 7px;background:#f7f1dc;touch-action:none}
-#touch-heroes{flex:1;display:flex;justify-content:space-between;gap:6px;min-width:0;color:#5e6149}
-#touch-hero-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#touch-heroes{flex:1;display:flex;align-items:center;gap:6px;min-width:max-content;color:#5e6149}
+#touch-hero-portrait{width:24px;height:32px;flex-shrink:0}
+#touch-hero-name{white-space:nowrap;flex:1;text-align:left}
 #touch-pause{min-width:44px;font-size:22px}
 .touch-pad{display:grid;grid-template-columns:minmax(96px,1fr) 58px 132px;gap:8px;align-items:center;min-height:164px}
 .touch-movement{justify-self:start;text-align:center}
@@ -123,6 +123,8 @@
 .touch-mode footer{margin-top:16px;padding:13px 0;gap:8px}
 .touch-mode footer .text-button{min-height:44px}
 @media(max-width:350px){
+  .touch-tools{display:grid;grid-template-columns:repeat(3,1fr)}
+  #touch-heroes{grid-column:1/-1}
   .touch-controls{padding-left:6px;padding-right:6px}.touch-pad{grid-template-columns:96px 46px 116px;gap:4px}.touch-tool{padding:5px 7px;font-size:15px}
   .touch-powers{grid-template-columns:54px 54px;gap:12px 8px}.touch-power{width:54px;height:54px}.touch-power-name{top:56px;left:-5px;width:60px;font-size:11px}
   .touch-interact{width:46px}.touch-interact>span:first-child{width:46px;height:48px}.touch-hero-list{grid-template-columns:1fr}
@@ -131,6 +133,8 @@
   .touch-mode.playing{overflow:hidden}
   .touch-mode.playing .page{max-width:none;height:100dvh;padding:0}
   .touch-mode.playing .masthead,.touch-mode.playing .under-panel,.touch-mode.playing .mission,.touch-mode.playing footer{display:none}
+  .touch-mode.playing .under-panel{display:flex;position:fixed;bottom:max(4px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);margin:0;pointer-events:none}
+  .touch-mode.playing .under-panel>span:not(#health){display:none}
   .touch-mode.playing .comic-column{height:100dvh;position:relative;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:48px max(146px,env(safe-area-inset-right)) 8px max(130px,env(safe-area-inset-left))}
   .touch-mode.playing .chapter-bar{position:fixed;top:0;left:max(10px,env(safe-area-inset-left));height:44px;max-width:35vw;z-index:2}
   .touch-mode.playing #chapters{display:none}
