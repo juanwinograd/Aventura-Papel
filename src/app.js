@@ -3,6 +3,7 @@ import { HEROES, SCENES, SAVE_KEY, COMIC_PAGES, MAX_CLONES } from './content.js'
 import { Illustrator } from './art.js';
 import { Soundtrack } from './audio.js';
 import { illustrationsReady } from './illustrations.js';
+import { TouchControls, isMobileTouchDevice } from './touch.js';
 
 const $=s=>document.querySelector(s);
 const world=$('#world'), modal=$('#modal'), audio=new Soundtrack();
@@ -12,6 +13,15 @@ export let game=new Adventure(saved);
 const art=new Illustrator(world);
 let started=false,keys=new Set(),last=0,toastTimer=0,lastHero=-1,lastScene=-1,uiTick=0,lastDialog='';
 const powerKeys=['Z','X','C','V'];
+const mobileControls=isMobileTouchDevice(navigator);
+document.body.classList.toggle('touch-mode',mobileControls);
+function focusWorld(){world.focus({preventScroll:true});}
+const touch=new TouchControls($('#touch-controls'),{
+  moveStart:()=>{game.target=null;audio.unlock();},
+  power:index=>{if(started&&!modal.open){audio.unlock();game.use(index);sync();}},
+  interact:()=>{if(started&&!modal.open){audio.unlock();game.interact();sync();}},
+  heroes:chooseTouchHero,hint:()=>$('#hint').click(),pause:help,chapters,
+});
 function save(){
   if(!started)return;
   try{localStorage.setItem(SAVE_KEY,JSON.stringify(game.serialize()));storageAvailable=true;$('#save-status').textContent='Guardado en este navegador ✓';}
@@ -25,22 +35,24 @@ function processEvents(){
     if(event.type==='sound')audio.play(event.detail);
     if(event.type==='solved'){audio.play('secret');if(game.complete)toast(game.scene===6?'¡Completaron la viñeta secreta!':'¡Acertijo resuelto! Ya pueden avanzar.');}
     if(event.type==='save')save();
-    if(event.type==='scene'){$('#scene-flash').classList.remove('turn');void $('#scene-flash').offsetWidth;$('#scene-flash').classList.add('turn');}
+    if(event.type==='scene'){touch.reset();$('#scene-flash').classList.remove('turn');void $('#scene-flash').offsetWidth;$('#scene-flash').classList.add('turn');}
   }
 }
 function start(fresh=false){
   if(fresh)game=new Adventure();
-  started=true;$('#home').hidden=true;game.start();audio.unlock();lastHero=-1;lastScene=-1;save();sync();world.focus();
+  document.body.classList.add('playing');touch.reset();
+  started=true;$('#home').hidden=true;game.start();audio.unlock();lastHero=-1;lastScene=-1;save();sync();focusWorld();
 }
-function selectHero(index){if(modal.open)return;game.select(index);lastHero=-1;sync();if(started)world.focus();}
+function selectHero(index){if(modal.open)return;game.select(index);lastHero=-1;sync();if(started)focusWorld();}
 function powers(){
   const h=HEROES[game.player.hero];$('#power-owner').textContent=h.name.toUpperCase();
+  touch.setHero(h);$('#touch-hero-name').textContent=h.name;
   const el=$('#powers');el.style.setProperty('--hero-color',h.color);el.style.setProperty('--hero-dark',h.dark);
   el.replaceChildren(...h.powers.map((p,i)=>{
     const button=document.createElement('button');button.className='power';button.dataset.power=i;
     button.innerHTML=`<span class="power-icon" aria-hidden="true">${p[3]}</span><span class="power-copy"><strong>${p[0]}</strong><small>${p[1]}</small></span><span class="power-key">${powerKeys[i]}</span>`;
     button.title=`${p[0]} (${powerKeys[i]}): ${p[1]}`;
-    button.addEventListener('click',()=>{if(started&&!modal.open){game.use(i);sync();world.focus();}else if(!started)toast('Entrá en la historieta para probar los poderes.');});return button;
+    button.addEventListener('click',()=>{if(started&&!modal.open){game.use(i);sync();focusWorld();}else if(!started)toast('Entrá en la historieta para probar los poderes.');});return button;
   }));
 }
 function makeCards(){
@@ -53,6 +65,9 @@ function makeCards(){
   });
 }
 function sync(){
+  $('#touch-controls').hidden=!mobileControls||!started;
+  const blocked=!started||modal.open||game.dialog.length>0||Boolean(game.cinematic);
+  touch.setMovementEnabled(mobileControls&&!blocked);
   document.querySelectorAll('.hero-card').forEach((b,i)=>b.hidden=Boolean(HEROES[i].unlock&&!game.flags[HEROES[i].unlock]));
   $('#team-shortcuts').textContent='CAMBIÁ CON '+HEROES.map((h,i)=>!h.unlock||game.flags[h.unlock]?i+1:null).filter(Boolean).join(' · ');
   if(lastHero!==game.player.hero){
@@ -81,24 +96,56 @@ function sync(){
       button.setAttribute('aria-disabled',String(!started||full));
       button.setAttribute('aria-label',`Clonarse: ${game.clones.length} de ${MAX_CLONES} clones vivos. ${full?'Esperá a que caiga uno.':'Listo, tecla Z, sin recarga.'}`);
     }
+    touch.syncPower(i,{
+      disabled:blocked||cd>0&&!active||game.player.hero===7&&game.clones.length>=MAX_CLONES,
+      active,cooldown:cd,duration:HEROES[game.player.hero].powers[i][2],
+      count:game.player.hero===7?`${game.clones.length}/${MAX_CLONES}`:null,
+      label:`${HEROES[game.player.hero].powers[i][0]}: ${active?'activo, tocar para cancelar':cd>0?'recargando '+Math.ceil(cd)+' segundos':'listo'}. ${HEROES[game.player.hero].powers[i][1]}`,
+    });
   });
+  const actionName=game.dialog.length?'Seguir':game.cinematic?'Esperá':context?.type==='exit'?'Avanzar':context?.type==='pickup'?'Recoger':context?.type==='gift'?(context.object?'Colocar':'Abrir'):context?.type==='mark'?'Investigar':context?.object?.type==='npc'?'Hablar':context?'Usar':'Interactuar';
+  $('#touch-action-name').textContent=actionName;
+  $('#touch-health').textContent=Array.from({length:3},(_,i)=>i<game.player.health?'♡':'·').join('');
+  $('#touch-health').setAttribute('aria-label',`${game.player.health} oportunidades`);
+  $('#touch-interact').disabled=!started||modal.open||Boolean(game.cinematic);
+  $('#touch-interact').setAttribute('aria-label',context?.text||actionName);
+  if(mobileControls){
+    $('#team-shortcuts').textContent='TOCÁ PARA ELEGIR';
+    $('.keyboard-note').textContent='Joystick y poderes táctiles · mejor en horizontal';
+    world.setAttribute('aria-label','Aventura interactiva. Usá el joystick para moverte y apuntar, y los círculos para los poderes.');
+  }
   const dialogue=game.dialog[0];$('#bubble').hidden=!started||!dialogue;
   const key=dialogue?dialogue.join('|'):'';
   if(key!==lastDialog){lastDialog=key;if(dialogue){$('#speaker').textContent=dialogue[0];$('#speech').textContent=dialogue[1];}}
 }
 function showModal(html,eyebrow='CUADERNO DE AVENTURA'){
+  touch.reset();
   keys.clear();game.target=null;game.running=false;$('#modal-content').innerHTML=html;$('#modal-eyebrow').textContent=eyebrow;if(!modal.open)modal.showModal();sync();
 }
-function closeModal(){modal.close();game.running=started;keys.clear();if(started)world.focus();}
+function closeModal(){modal.close();game.running=started;keys.clear();sync();if(started)focusWorld();}
 modal.addEventListener('cancel',event=>{event.preventDefault();closeModal();});
 modal.addEventListener('close',()=>{game.running=started;keys.clear();});
 $('#close-modal').addEventListener('click',closeModal);
 function help(){
   showModal(`<h2>${started?'Una pausa entre viñetas':'Pequeña guía de superpoderes'}</h2><p>Explorá, hablá con los personajes y combiná poderes. Cada héroe tiene una solución distinta. Las puertas se abren cuando resolvés los acertijos de la viñeta.</p><div class="controls-grid"><div><strong>Moverte</strong><p>Flechas o W A S D.<br>También podés hacer clic en el suelo.</p></div><div><strong>Cambiar de personaje</strong><p>1 Vicente · 2 Fabrizio · 3 Luca${game.flags.gaspar_unlocked?' · 4 Gaspar':''}${game.flags.amaral_unlocked?' · 5 Amaral':''}${game.flags.aaron_unlocked?' · 6 Aarón Mamani':''}.<br>O elegí su tarjeta.</p></div><div><strong>Poderes</strong><p>Z · X · C · V, o sus botones.<br>Mirá al objetivo antes de lanzar.</p></div><div><strong>Interactuar</strong><p>E o Espacio para hablar, recoger regalos y avanzar. Los regalos se abren con E al llevarlos; junto a un mecanismo, E los coloca.</p></div></div><p>Al recibir tres golpes volvés al punto de control. <b>La masa rosa te absorbe de inmediato, incluso con un escudo.</b> Crece al avanzar de viñeta, sin reloj. En el borde, Vicente debe teletransportarse al otro lado cuando la placa y el robot estén resueltos. El láser de la calle solo deja pasar a Fabrizio invisible. Lo que resolviste queda resuelto. Pedí <b>Una pista</b> cuando quieras. Los poderes se recargan solos, también al cambiar de héroe.</p><label class="volume-control">Volumen <input id="volume" type="range" min="0" max="1" step="0.05" value="${audio.volume}"></label><label class="volume-control"><input id="reduced" type="checkbox" ${art.reduced?'checked':''}> Reducir movimiento</label>${started?'<button id="resume" class="primary-button">Volver a la aventura →</button><button id="restart-screen" class="danger-button">Volver al punto de control</button>':''}<p class="credit-note">Una aventura nacida en una historieta de verdad.</p>`);
   $('#modal-content .controls-grid>div:nth-child(2) p').textContent=HEROES.map((h,i)=>!h.unlock||game.flags[h.unlock]?`${i+1} ${h.name}`:null).filter(Boolean).join(' · ')+'. O elegí su tarjeta.';
+  if(mobileControls){
+    const rows=$('#modal-content').querySelectorAll('.controls-grid p');
+    rows[0].textContent='Arrastrá el joystick de la izquierda para caminar y apuntar. Al soltarlo, te detenés.';
+    rows[1].textContent='Tocá el nombre del personaje junto a los controles y elegí a otro integrante del equipo.';
+    rows[2].textContent='Tocá los círculos de la derecha. Podés moverte con un pulgar y usar un poder con el otro. El número muestra la recarga.';
+    rows[3].textContent='El botón de la mano sirve para hablar, seguir los diálogos, recoger, colocar, abrir regalos y avanzar de viñeta.';
+  }
   if(game.flags.sebastian_unlocked||game.flags.benicio_unlocked){const p=document.createElement('p');p.textContent='Z de Sebástian construye el puente junto a las rocas o muros que frenan disparos. Z de Benicio crea hasta siete clones autónomos, sin recarga: si cae uno podés reemplazarlo de inmediato.';$('#modal-content').append(p);}
   $('#volume').addEventListener('input',e=>audio.volume=Number(e.target.value));$('#reduced').addEventListener('change',e=>art.reduced=e.target.checked);
   $('#resume')?.addEventListener('click',closeModal);$('#restart-screen')?.addEventListener('click',()=>{closeModal();game.enter(game.scene,false);toast('Punto de control restaurado. Lo resuelto sigue resuelto.');});
+}
+function chooseTouchHero(){
+  showModal(`<h2>¿Quién sigue la aventura?</h2><p>Tocá un personaje para elegirlo.</p><div class="touch-hero-list">${HEROES.map((h,i)=>!h.unlock||game.flags[h.unlock]?`<button class="touch-hero-option" data-touch-hero="${i}" aria-pressed="${i===game.player.hero}" style="--hero-color:${h.color}"><canvas width="80" height="105" aria-hidden="true"></canvas><span><strong>${h.name}</strong><small>${h.trait}</small></span></button>`:'').join('')}</div>`,'TU EQUIPO');
+  document.querySelectorAll('[data-touch-hero]').forEach(button=>{
+    const i=Number(button.dataset.touchHero),portrait=new Illustrator(button.querySelector('canvas'));
+    portrait.hero(i,40,96,.8,0);button.addEventListener('click',()=>{closeModal();selectHero(i);});
+  });
 }
 function chapters(){
   showModal(`<h2>Un mundo entre viñetas</h2><p>Volvé a las páginas que ya exploraste. Los acertijos resueltos y las marcas se conservan.</p><div class="chapter-list">${SCENES.map((s,i)=>{
@@ -122,10 +169,11 @@ $('#begin').addEventListener('click',()=>saved?confirmNew():start(true));
 $('#continue').hidden=!saved;$('#continue').addEventListener('click',()=>start(false));
 $('#help').addEventListener('click',help);$('#chapters').addEventListener('click',chapters);$('#sketchbook').addEventListener('click',sketchbook);
 $('#hint').addEventListener('click',()=>{if(!started){toast('Entrá en la historieta. Las pistas te acompañan en cada viñeta.');return;}showModal(`<h2>Una idea para seguir…</h2><p>${game.definition.hint}</p><p>Acertijos resueltos: ${game.definition.requires.filter(f=>game.flags[f]).length} de ${game.definition.requires.length}.</p><button id="got-it" class="primary-button">¡Vamos a probar! →</button>`,'UNA PISTA DEL ANCIANITO');$('#got-it').addEventListener('click',closeModal);});
-$('#advance').addEventListener('click',()=>{game.interact();sync();world.focus();});
-$('#interact-button').addEventListener('click',()=>{if(!modal.open)game.interact();sync();world.focus();});
+$('#advance').addEventListener('click',()=>{game.interact();sync();focusWorld();});
+$('#interact-button').addEventListener('click',()=>{if(!modal.open)game.interact();sync();focusWorld();});
 $('#sound').addEventListener('click',()=>{audio.enabled=!audio.enabled;audio.unlock();$('#sound').setAttribute('aria-pressed',String(audio.enabled));$('#sound').setAttribute('aria-label',audio.enabled?'Desactivar sonido':'Activar sonido');$('#sound span').textContent=audio.enabled?'Sonido activado':'Sonido apagado';if(audio.enabled)audio.play('secret');});
 window.addEventListener('keydown',e=>{
+  if(e.target.closest?.('button')&&[' ','Enter'].includes(e.key))return;
   if(e.key==='Escape'&&!modal.open&&started){e.preventDefault();help();return;}
   if(modal.open||!started||['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName))return;
   const key=e.key.toLowerCase();
@@ -137,9 +185,11 @@ window.addEventListener('keydown',e=>{
 });
 window.addEventListener('keyup',e=>keys.delete(e.key.toLowerCase()));
 window.addEventListener('blur',()=>keys.clear());
+window.addEventListener('resize',()=>keys.clear());
 document.addEventListener('visibilitychange',()=>{keys.clear();if(document.hidden&&started&&!modal.open)help();});
 world.addEventListener('pointerdown',e=>{
-  if(!started||modal.open)return;world.focus();
+  if(e.pointerType==='touch'&&touch.pointer!==null)return;
+  if(!started||modal.open)return;focusWorld();
   if(game.dialog.length){game.interact();sync();return;}
   const rect=world.getBoundingClientRect(),point={x:(e.clientX-rect.left)/rect.width*960,y:(e.clientY-rect.top)/rect.height*540};
   if(!game.safe(point.x,point.y))return;
@@ -149,7 +199,7 @@ world.addEventListener('pointerdown',e=>{
 function frame(now){
   const dt=Math.min(.05,(now-last)/1000||0);last=now;
   if(!started)game.time+=dt;
-  else if(!modal.open){const x=Number(keys.has('arrowright')||keys.has('d'))-Number(keys.has('arrowleft')||keys.has('a')),y=Number(keys.has('arrowdown')||keys.has('s'))-Number(keys.has('arrowup')||keys.has('w'));game.update(dt,{x,y});}
+  else if(!modal.open){const x=Number(keys.has('arrowright')||keys.has('d'))-Number(keys.has('arrowleft')||keys.has('a'))+touch.axis.x,y=Number(keys.has('arrowdown')||keys.has('s'))-Number(keys.has('arrowup')||keys.has('w'))+touch.axis.y;game.update(dt,{x,y});}
   processEvents();uiTick+=dt;if(uiTick>.09){sync();uiTick=0;}
   art.draw(game,!started);requestAnimationFrame(frame);
 }
