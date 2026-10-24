@@ -24,7 +24,10 @@ try{
   async function move(dx,dy,ms){const center=await box('#touch-stick');await dispatch('touchStart',[point(1,{x:center.x+dx*32,y:center.y+dy*32})]);await page.waitForTimeout(ms);await dispatch('touchEnd',[]);}
   async function hero(name){await page.locator('#touch-heroes').tap();await page.getByRole('button',{name:new RegExp(name)}).tap();}
   const paused=(await state()).player.x;await move(1,0,200);assert.equal((await state()).player.x,paused,'el diálogo impide moverse');
-  for(let i=0;i<3;i++)await page.locator('#touch-interact').tap();assert.equal((await state()).dialog.length,0);
+  for(let i=0;i<2;i++)await page.locator('#touch-interact').tap();
+  assert.match(await page.locator('#speech').textContent(),/toquen su nombre junto a los controles/);
+  assert.doesNotMatch(await page.locator('#speech').textContent(),/1, 2 y 3/);
+  await page.locator('#touch-interact').tap();assert.equal((await state()).dialog.length,0);
   await hero('Fabrizio');assert.equal((await state()).player.hero,1);
   const stick=await box('#touch-stick'),thumb=point(1,{x:stick.x+32,y:stick.y});
   await dispatch('touchStart',[thumb]);await page.waitForTimeout(160);const before=(await state()).player.x;
@@ -61,7 +64,7 @@ try{
   assert.deepEqual(errors,[]);console.log('✓ Teléfono y tablet: joystick real, dos dedos, recargas, cancelación, pausa, rotación, poderes, personajes, ayuda y guardado.');
 
   const desktop=await browser.newContext({viewport:{width:390,height:844},hasTouch:true});await routeLocalGame(desktop);const desktopPage=await desktop.newPage();await desktopPage.goto(localURL);await desktopPage.getByRole('button',{name:/Entrar en la historieta/}).click();assert.equal(await desktopPage.locator('#touch-controls').isVisible(),false,'una computadora con pantalla táctil y ventana angosta conserva teclado y mouse');
-  for(let i=0;i<3;i++)await desktopPage.keyboard.press('e');await desktopPage.keyboard.press('3');
+  for(let i=0;i<2;i++)await desktopPage.keyboard.press('e');assert.match(await desktopPage.locator('#speech').textContent(),/1, 2 y 3/);await desktopPage.keyboard.press('e');await desktopPage.keyboard.press('3');
   await desktopPage.keyboard.down('ArrowRight');await desktopPage.waitForTimeout(1030);await desktopPage.keyboard.up('ArrowRight');await desktopPage.keyboard.down('ArrowUp');await desktopPage.waitForTimeout(390);await desktopPage.keyboard.up('ArrowUp');await desktopPage.keyboard.down('ArrowRight');await desktopPage.waitForTimeout(60);await desktopPage.keyboard.up('ArrowRight');await desktopPage.keyboard.press('z');
   assert.equal(await desktopPage.evaluate(async()=>(await import('./src/app.js')).game.flags.base_power),true,'en computadora siguen funcionando teclado y poderes');await desktop.close();
   const ipad=await browser.newContext({...devices['iPad Pro 11'],deviceScaleFactor:1});await routeLocalGame(ipad);const ipadPage=await ipad.newPage();await ipadPage.goto(localURL);await ipadPage.getByRole('button',{name:/Entrar en la historieta/}).tap();assert.equal(await ipadPage.locator('#touch-controls').isVisible(),true);await ipad.close();

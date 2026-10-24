@@ -116,7 +116,7 @@ function sync(){
   }
   const dialogue=game.dialog[0];$('#bubble').hidden=!started||!dialogue;
   const key=dialogue?dialogue.join('|'):'';
-  if(key!==lastDialog){lastDialog=key;if(dialogue){$('#speaker').textContent=dialogue[0];$('#speech').textContent=dialogue[1];}}
+  if(key!==lastDialog){lastDialog=key;if(dialogue){$('#speaker').textContent=dialogue[0];$('#speech').textContent=mobileControls?(dialogue[2]||dialogue[1]):dialogue[1];}}
 }
 function showModal(html,eyebrow='CUADERNO DE AVENTURA'){
   touch.reset();
