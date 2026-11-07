@@ -6,7 +6,7 @@ Una aventura 2D para navegador basada en la historieta de la carpeta [`historiet
 
 **[Entrar en El apocalipsis Vicente](https://juanwinograd.github.io/Aventura-Papel/)**
 
-El juego está publicado en GitHub Pages. Se juega gratis desde el navegador, sin instalar nada ni crear una cuenta. La primera versión está pensada para **una persona en computadora, con teclado y mouse**.
+El juego está publicado en GitHub Pages. Se juega gratis desde el navegador, sin instalar nada ni crear una cuenta: en **computadora con teclado y mouse**, o en **teléfono y tablet con controles táctiles**. Es para una persona.
 
 Elegí «¡Entrar en la historieta!» para empezar o «Continuar mi aventura» para recuperar una partida guardada. Podés activar los efectos de sonido con el botón ♪ y pedir «Una pista» cuando necesites ayuda.
 
@@ -61,6 +61,12 @@ npm ci --cache /workspace/.cache/npm --ignore-scripts --no-audit --no-fund
 
 ## Controles
 
+En teléfonos y tablets aparecen automáticamente un **joystick a la izquierda** y **círculos con los poderes a la derecha**. Arrastrá el joystick para caminar y apuntar; podés usar un poder con el otro pulgar al mismo tiempo. Los círculos muestran la recarga y permiten cancelar los poderes de Luca cuando están activos. El botón de la mano cambia según la acción: hablar, seguir leyendo, recoger, colocar, abrir o avanzar. Tocá el nombre del personaje para elegir a otro integrante del equipo; al lado están las pistas, las viñetas y la pausa.
+
+Se puede jugar en vertical y horizontal. En horizontal, la viñeta ocupa el centro y los controles quedan a los costados. Los controles se detienen al soltar el joystick, cancelar el gesto, girar el dispositivo, pausar o dejar la pestaña. **En computadora no aparecen**, aunque la ventana sea angosta o la pantalla admita toques. El guardado local funciona igual en ambas interfaces y los controles también están incluidos en el HTML descargable.
+
+En computadora:
+
 | Acción | Control |
 | --- | --- |
 | Moverse | Flechas, WASD o clic en el suelo |
@@ -99,12 +105,15 @@ npm test
 npm run test:browser
 npm run build
 npm run test:download
+npm run test:touch
 ```
 
 - `check`: verifica la sintaxis de los módulos y del servidor.
 - `test`: pruebas del motor con el runner de Node; regalos y contenido, poderes, recargas, movimiento restringido, teletransporte seguro, protección de NPC, puntos de control, guardado, aventura completa y nivel secreto.
 - `test:browser`: inicia su propio servidor en el puerto 3107 y recorre el juego en Chromium con clics y teclas reales. Comprueba los veintiún poderes, el láser y el teletransporte obligatorio, el final con fusión y separación, las tres marcas, el nivel secreto de Gaspar, el cofre de Amaral y sus tres climas, el jardín de Aarón y la burbuja temporal sobre un asistente que camina, la cantera con dos burbujas simultáneas, el puente de rocas, Sebástian, Benicio y sus siete clones, la continuación del guardado, pausa, sonido y lectura de la tapa y las doce páginas de la historieta. También verifica los fondos ilustrados, la estabilidad del trazo entre fotogramas idénticos, las rutas bajo `/Aventura-Papel/` y la ausencia de desborde horizontal a 320, 390 y 768 px. Guarda capturas en `test-results/`, una carpeta ignorada por Git.
 - `test:download`: verifica el HTML generado, el movimiento, un poder, el guardado y la continuación. Sirve el archivo en el puerto 3108, corta la conexión después de la carga y comprueba que no se pidan recursos externos. La política del Chromium administrado impide navegar a `file://`; la apertura directa desde el sistema de archivos no pudo verificarse aquí.
+
+- `test:touch`: genera el HTML y verifica en Chromium con emulación móvil el joystick, dos dedos simultáneos, pausa, cancelación, rotación, personajes, poderes, guardado y controles dentro de la edición descargable. También comprueba que no aparezcan en una computadora con pantalla táctil y que sus controles de teclado sigan funcionando. Sirve los archivos locales mediante rutas de Playwright, sin usar servicios externos.
 
 Las pruebas del navegador usan `/usr/bin/chromium` si existe, o el navegador instalado por Playwright. En otra máquina, ejecutar `npx playwright install chromium` antes de las pruebas. Se puede indicar un ejecutable con `CHROMIUM_PATH` y cambiar el puerto de prueba con `TEST_PORT`.
 
@@ -120,7 +129,8 @@ Las pruebas del navegador usan `/usr/bin/chromium` si existe, o el navegador ins
 - `src/illustration-files.js`: lista de fondos, compartida por la aplicación y el generador del HTML descargable. El generador incluye las imágenes dentro del archivo para conservar el funcionamiento sin conexión.
 - `src/app.js`: interfaz, controles, guardado y lectura de la tapa y las doce páginas de la historieta.
 - `src/audio.js`: efectos breves sintetizados con Web Audio.
+- `src/touch.js`: detección de teléfonos y tablets, joystick con captura de puntero y botones que admiten varios dedos a la vez.
 
 Vicente y Luca flotan sin piernas. Luca tiene un solo pelo doblado. Fabrizio tiene un resorte de pelo, uno de pierna y dos de brazos. El Ancianito tiene una pequeña barba y sostiene su bastón; Gaspar conserva la cara redonda con extremidades radiales de su dibujo. Amaral es roja y sostiene una lanza; Alma es una cara flotante de color suave. El rombo celeste de la referencia queda fuera del juego por ahora; las cinco chicas mantienen sus siluetas y colores. Fusi conserva el pelo y la cabeza abierta del glosario, diferenciada de sus asistentes. Fusi y Cata flotan sin piernas. Aarón conserva la cabeza verde rellena, el pequeño pelo oscuro y el cuerpo sin piernas de la página 11. Las estrellas secretas se dibujan sobre los escenarios y efectos para que sean visibles, sin recuadros. El blanco conserva su fondo claro; las indicaciones para el láser y el cerrojo las da el Ancianito. La antena conserva su dibujo sin círculo blanco y está separada de los muebles. Los dibujos originales no se modifican. La tipografía Patrick Hand está incluida bajo su licencia OFL en `assets/FONT-LICENSE.txt`.
 
-Primera versión para una persona en computadora con teclado y mouse. La interfaz se adapta a pantallas angostas, pero no incluye controles táctiles completos ni multijugador. La duración de 10–15 minutos es un objetivo de diseño que debe ajustarse con una partida de la familia; las pruebas automáticas no miden esa experiencia.
+Versión para una persona en computadora, teléfono o tablet. No incluye multijugador. La duración de 10–15 minutos es un objetivo de diseño que debe ajustarse con una partida de la familia; las pruebas automáticas no miden esa experiencia. Los gestos se verifican en Chromium con emulación móvil; todavía conviene probar la comodidad de los controles en los teléfonos y tablets de la familia.

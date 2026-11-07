@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#f8f5ed">
   <meta name="description" content="Una aventura entre viñetas, superpoderes y personajes secretos. Entrá en la historieta y ayudá a detener el apocalipsis Vicente.">
   <title>El apocalipsis Vicente · Una aventura de papel</title>
@@ -47,6 +47,19 @@
             <div id="interaction" class="interaction" hidden><kbd>E</kbd><span></span></div>
             <div id="scene-flash" class="scene-flash" aria-hidden="true"></div>
           </div>
+          <section id="touch-controls" class="touch-controls" aria-label="Controles táctiles" hidden>
+            <div class="touch-tools">
+              <button id="touch-heroes" class="touch-tool"><canvas id="touch-hero-portrait" width="80" height="105" aria-hidden="true"></canvas><span id="touch-hero-name">Vicente</span> <span aria-hidden="true">▾</span></button>
+              <button id="touch-hint" class="touch-tool">Pista <span aria-hidden="true">✧</span></button>
+              <button id="touch-chapters" class="touch-tool">Viñetas</button>
+              <button id="touch-pause" class="touch-tool" aria-label="Pausar y ver controles">Ⅱ</button>
+            </div>
+            <div class="touch-pad">
+              <div class="touch-movement"><div id="touch-stick" class="touch-stick" role="group" aria-label="Joystick: arrastrá para moverte y apuntar"><span class="touch-stick-arrows" aria-hidden="true">✥</span><span class="touch-stick-knob" aria-hidden="true"></span></div><span class="touch-pad-note">Mover y apuntar</span></div>
+              <button id="touch-interact" class="touch-interact" aria-label="Interactuar"><span aria-hidden="true">✋</span><span id="touch-action-name">Hablar</span></button>
+              <div id="touch-powers" class="touch-powers" aria-label="Poderes del personaje"></div>
+            </div>
+          </section>
           <div class="under-panel"><span id="health" aria-label="3 oportunidades">♡ ♡ ♡</span><span id="save-status">Tu progreso se guarda en este navegador</span><span class="page-label">HECHO DE TRAZOS Y SUPERPODERES</span></div>
           <section id="mission" class="mission" aria-label="Objetivo actual"><span class="mission-icon">↗</span><div><p class="eyebrow">LA MISIÓN</p><p id="objective">Detener el apocalipsis… y que todo termine en una fiesta.</p></div><button id="hint" class="hint-button">Una pista <span>✧</span></button></section>
           <div class="keyboard-strip"><span><kbd>↑</kbd><kbd>←</kbd><kbd>↓</kbd><kbd>→</kbd> Moverte</span><span><kbd>E</kbd> Interactuar</span><span><kbd>Z</kbd><kbd>X</kbd><kbd>C</kbd><kbd>V</kbd> Poderes</span><span><kbd>Esc</kbd> Pausa</span></div>
